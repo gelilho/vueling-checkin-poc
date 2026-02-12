@@ -4,6 +4,10 @@
 
 export type ValidationIssueType =
   | "passport_expiry"
+  | "invalid_expiry_date"
+  | "invalid_passport_number"
+  | "invalid_dob"
+  | "underage"
   | "etias_required"
   | "evisitor_required"
   | "name_mismatch";

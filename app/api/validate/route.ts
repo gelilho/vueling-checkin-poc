@@ -11,6 +11,8 @@ export async function POST(req: NextRequest) {
       bookingName,
       destination,
       travelDate,
+      passportNumber,
+      dateOfBirth,
     } = body;
 
     const result = validatePassenger(
@@ -19,7 +21,9 @@ export async function POST(req: NextRequest) {
       passportName,
       bookingName,
       destination,
-      travelDate
+      travelDate,
+      passportNumber,
+      dateOfBirth
     );
 
     return NextResponse.json(result);

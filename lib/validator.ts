@@ -10,34 +10,91 @@ export function validatePassenger(
   passportName: string,
   bookingName: string,
   destination: string,
-  travelDate: string
+  travelDate: string,
+  passportNumber?: string,
+  dateOfBirth?: string
 ): ValidationResult {
   const issues: ValidationIssue[] = [];
   const route = routes[destination];
 
-  if (!route) {
-    return { valid: true, issues: [] };
+  // --- 1. Passport number format check ---
+  if (passportNumber) {
+    const cleaned = passportNumber.replace(/[\s-]/g, "");
+    if (cleaned.length < 5 || cleaned.length > 12 || !/^[A-Z0-9]+$/i.test(cleaned)) {
+      issues.push({
+        type: "invalid_passport_number",
+        severity: "error",
+        details: `Passport number "${passportNumber}" is invalid. Must be 5–12 alphanumeric characters.`,
+      });
+    }
   }
 
-  // 1. Passport expiry check
+  // --- 2. Expiry date validity check ---
   const expiryDate = new Date(passportExpiry);
-  const travel = new Date(travelDate);
-  const requiredMonths = route.passport_validity_months;
-  const requiredDate = new Date(travel);
-  requiredDate.setMonth(requiredDate.getMonth() + requiredMonths);
-
-  if (expiryDate < requiredDate) {
-    const daysUntilExpiry = Math.ceil(
-      (expiryDate.getTime() - travel.getTime()) / (1000 * 60 * 60 * 24)
-    );
+  if (!passportExpiry || isNaN(expiryDate.getTime())) {
     issues.push({
-      type: "passport_expiry",
+      type: "invalid_expiry_date",
       severity: "error",
-      details: `Passport expires in ${daysUntilExpiry} days. ${route.country} requires at least ${requiredMonths} months validity from travel date.`,
+      details: "Passport expiry date is missing or invalid.",
     });
   }
 
-  // 2. ETIAS check
+  // --- 3. Date of birth validity + age >= 18 check ---
+  if (dateOfBirth) {
+    const dob = new Date(dateOfBirth);
+    if (isNaN(dob.getTime())) {
+      issues.push({
+        type: "invalid_dob",
+        severity: "error",
+        details: "Date of birth is invalid.",
+      });
+    } else {
+      // Age check: must be at least 18 at travel date
+      const travel = new Date(travelDate);
+      const ageDiff = travel.getFullYear() - dob.getFullYear();
+      const monthDiff = travel.getMonth() - dob.getMonth();
+      const dayDiff = travel.getDate() - dob.getDate();
+      const age = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? ageDiff - 1 : ageDiff;
+
+      if (age < 18) {
+        issues.push({
+          type: "underage",
+          severity: "error",
+          details: `Passenger is ${age} years old. Must be at least 18 for automatic check-in.`,
+        });
+      }
+    }
+  }
+
+  if (!route) {
+    return {
+      valid: issues.filter((i) => i.severity === "error").length === 0,
+      issues,
+    };
+  }
+
+  // --- 4. Passport expiry vs route requirements ---
+  if (!isNaN(expiryDate.getTime())) {
+    const travel = new Date(travelDate);
+    const requiredMonths = route.passport_validity_months;
+    const requiredDate = new Date(travel);
+    requiredDate.setMonth(requiredDate.getMonth() + requiredMonths);
+
+    if (expiryDate < requiredDate) {
+      const daysUntilExpiry = Math.ceil(
+        (expiryDate.getTime() - travel.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      issues.push({
+        type: "passport_expiry",
+        severity: "error",
+        details: daysUntilExpiry < 0
+          ? `Passport expired ${Math.abs(daysUntilExpiry)} days ago. ${route.country} requires at least ${requiredMonths} months validity from travel date.`
+          : `Passport expires in ${daysUntilExpiry} days. ${route.country} requires at least ${requiredMonths} months validity from travel date.`,
+      });
+    }
+  }
+
+  // --- 5. ETIAS check ---
   if (route.etias_required_from.includes(nationality)) {
     issues.push({
       type: "etias_required",
@@ -46,7 +103,7 @@ export function validatePassenger(
     });
   }
 
-  // 3. eVisitor check (UK specific)
+  // --- 6. eVisitor check (UK specific) ---
   if (route.evisitor_required?.includes(nationality)) {
     issues.push({
       type: "evisitor_required",
@@ -55,11 +112,10 @@ export function validatePassenger(
     });
   }
 
-  // 4. Name matching
+  // --- 7. Name matching ---
   const normalizedPassport = passportName.toUpperCase().replace(/[^A-Z ]/g, "");
   const normalizedBooking = bookingName.toUpperCase().replace(/[^A-Z ]/g, "");
 
-  // Simple check: all booking name words should appear in passport name
   const bookingWords = normalizedBooking.split(/\s+/);
   const passportWords = normalizedPassport.split(/[\s,]+/);
   const missingWords = bookingWords.filter(

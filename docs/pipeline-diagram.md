@@ -2,49 +2,113 @@
 
 Visual documentation of the Invisible Check-In pipeline architecture.
 
-## Pipeline Sequence (High-Level)
+## Orchestration Pipeline (8-Stage)
+
+This is the main pipeline used for automated check-in processing.
 
 ```
-┌─────────────────────┐
-│   Passenger Select   │
-│  (María/Smiths/      │
-│     Live Scan)       │
-└─────────┬───────────┘
-          │
-          ▼
-┌─────────────────────┐
-│  Stage 1: Channels   │
-│  Select delivery     │
-│  preferences         │
-│  (email/SMS/push/app)│
-└─────────┬───────────┘
-          │
-          ▼
-┌─────────────────────┐
-│  Stage 2: Identity   │
-│  Scan passport data  │
-│  (mocked or live)    │
-│  → Typewriter reveal │
-└─────────┬───────────┘
-          │
-          ▼
-┌─────────────────────┐
-│  Stage 3: Check-In   │
-│  Validate documents  │
-│  Assign seat         │
-│  AI confirmation     │
-└─────────┬───────────┘
-          │
-     ┌────┴────┐
-     │         │
-  ✅ Valid   ❌ Invalid
-     │         │
-     ▼         ▼
-┌─────────┐ ┌──────────┐
-│ Stage 4 │ │  BLOCKED │
-│Delivery │ │  AI issue│
-│+ Extras │ │  explain │
-└─────────┘ └──────────┘
+┌──────────────────────────────────────┐
+│         Flight / Passenger           │
+│      Select from dashboard           │
+└──────────────┬───────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────────┐
+│  Stage 1: Booking Retrieval          │
+│  PNR lookup, flight details, date    │
+└──────────────┬───────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────────┐
+│  Stage 2: Passenger Information      │
+│  Name, nationality, seat, companion  │
+└──────────────┬───────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────────┐
+│  Stage 3: Document Verification      │
+│  POST /api/validate                  │
+│  ┌────────────────────────────────┐  │
+│  │ ✓ Passport number (5-12 chars)│  │
+│  │ ✓ Expiry date valid           │  │
+│  │ ✓ Passport not expired        │  │
+│  │ ✓ Date of birth valid         │  │
+│  │ ✓ Age >= 18                   │  │
+│  │ ✓ Name match (fuzzy)         │  │
+│  │ ⚠ ETIAS / eVisitor warnings  │  │
+│  └────────────────────────────────┘  │
+└──────────────┬───────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────────┐
+│  Stage 4: Baggage Check              │
+│  Checked bag status, weight          │
+└──────────────┬───────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────────┐
+│  Stage 5: Delivery Preferences       │
+│  Email, SMS, push, in-app            │
+└──────────────┬───────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────────┐
+│  Stage 6: Automatic Check-In         │
+│  Seat assignment + AI confirmation   │
+└──────────────┬───────────────────────┘
+               │
+          ┌────┴────┐
+          │         │
+       ✅ Valid   ❌ Invalid
+          │         │
+          ▼         ▼
+┌──────────────┐ ┌───────────────────┐
+│  Stage 7:    │ │  BLOCKED          │
+│  Post        │ │  AI-generated     │
+│  Check-In    │ │  issue explanation│
+│  Comms       │ │  Stage 7: skipped │
+│  (boarding   │ │  Stage 8: skipped │
+│   pass)      │ └───────────────────┘
+└──────┬───────┘
+       │
+       ▼
+┌──────────────────────────────────────┐
+│  Stage 8: AI Smart Nudge             │
+│  ✦ AI-Generated Content (Gemini)     │
+│  ┌────────────────────────────────┐  │
+│  │ No bag → Bag upsell push      │  │
+│  │ Has bag → Travel tip push     │  │
+│  │ Fallback if Gemini unavailable│  │
+│  └────────────────────────────────┘  │
+└──────────────────────────────────────┘
+```
+
+## Validation Rules Detail
+
+```
+POST /api/validate
+│
+├── 1. Passport number format
+│   └── 5–12 alphanumeric chars (A-Z, 0-9)
+│
+├── 2. Expiry date validity
+│   └── Must parse as a valid date
+│
+├── 3. Date of birth validity
+│   └── Must parse as a valid date
+│
+├── 4. Age check
+│   └── Passenger age >= 18 at travel date
+│
+├── 5. Passport expiry vs route requirements
+│   └── Expiry must be N months after travel
+│       (N = route.passport_validity_months)
+│
+├── 6. ETIAS / eVisitor
+│   └── Warning for non-EU nationals
+│
+└── 7. Name matching
+    └── Fuzzy match: booking name ↔ passport name
 ```
 
 ## State Machine
@@ -71,76 +135,66 @@ Each pipeline stage transitions through these visual states:
              └──────────┘ └──────────┘
 ```
 
-### Reducer Actions
+## API Call Sequence (Orchestration Pipeline)
 
 ```
-SET_STAGE_STATUS    →  Transition a stage between waiting/running/completed/error
-SET_STAGE_DATA      →  Populate key-value data for typewriter reveal
-SET_STAGE_SUMMARY   →  Set the one-line summary after completion
-SET_STAGE_DURATION  →  Record execution time (e.g., "1.2s")
-SET_PHASE           →  Switch between "select" and "running" modes
-RESET               →  Return to initial state for new scenario
-```
+Stage 1: Booking Retrieval
+  └── Read from passengers.json + flights.json (no API)
 
-## API Call Sequence
+Stage 2: Passenger Information
+  └── Read from passengers.json (no API)
 
-Shows which API endpoints are called at each pipeline stage:
+Stage 3: Document Verification
+  └── POST /api/validate
+      └── Rules engine: passport number, expiry, DOB, age, name match
 
-```
-Stage 1: Channels
-  └── No API calls (local state only)
+Stage 4: Baggage Check
+  └── Read from passengers.json (no API)
 
-Stage 2: Identity Scan
-  ├── [Mocked] → Read from passengers.json (no API)
-  └── [Live]   → POST /api/scan-passport
-                  └── Gemini 2.0 Flash Vision
-                      └── Reads MRZ + passport face page
+Stage 5: Delivery Preferences
+  └── Read from passengers.json (no API)
 
-Stage 3: Check-In
-  ├── POST /api/validate
-  │   └── Rules engine: passport expiry, visa/ETIAS, name match
-  │
-  ├── [If valid]   → POST /api/generate-nudge (type: checkin_confirmation)
-  │                   └── Gemini 2.0 Flash Text
-  │
-  └── [If invalid] → POST /api/generate-nudge (type: document_issue)
-                      └── Gemini 2.0 Flash Text
+Stage 6: Automatic Check-In
+  ├── [If docs valid]   → POST /api/generate-nudge (type: checkin_confirmation)
+  │                       └── Gemini 2.0 Flash Text
+  └── [If docs invalid] → POST /api/generate-nudge (type: document_issue)
+                           └── Gemini 2.0 Flash Text
 
-Stage 4: Delivery + Extras
+Stage 7: Post Check-In Comms
   ├── Render BoardingPass component (no API)
-  ├── Show delivery channel confirmations
-  └── [If no checked bag] → POST /api/generate-nudge (type: bag_nudge)
-                              └── Gemini 2.0 Flash Text
+  └── Show delivery channel confirmations
+
+Stage 8: AI Smart Nudge
+  └── POST /api/generate-nudge (type: bag_nudge or travel_tip)
+      ├── Gemini 2.0 Flash Text
+      └── Fallback: static template if Gemini unavailable
 ```
 
 ## Demo Scenarios Flow
 
-### María (Happy Path — BCN → Rome)
+### Maria Garcia Lopez (Happy Path — BCN → Rome)
 
 ```
-Channels ──✅──→ Scan ──✅──→ Check-In ──✅──→ Delivery
-  All          Passport     All checks     Boarding pass
-  channels     valid        pass           + bag nudge
-  selected     (2027)       Seat 14A       (no bag)
+Booking ──✅──→ Passenger ──✅──→ Doc Verify ──✅──→ Bags ──✅──→ Delivery ──✅──→ Check-In ──✅──→ Comms ──✅──→ AI Nudge
+  PNR         Name, ESP      All valid        No bag    Email,     Seat 14A      Boarding    ✦ Bag upsell
+  VY-M2026A   Seat 14A       Passport 2027             push,app   AI confirm    pass sent   (AI-generated)
 ```
 
-### The Smiths (Family — LGW → Barcelona)
+### James Smith (Family — LGW → Barcelona)
 
 ```
-Channels ──✅──→ Scan ──✅──→ Check-In ──✅──→ Delivery
-  All          Passport     All checks     Boarding pass
-  channels     valid        pass           + bag nudge
-  selected     (2028)       Seats 22A/22B  (family, no bags)
+Booking ──✅──→ Passenger ──✅──→ Doc Verify ──✅──→ Bags ──✅──→ Delivery ──✅──→ Check-In ──✅──→ Comms ──✅──→ AI Nudge
+  PNR         Name, GBR      All valid        No bag    All        Seat 8A       Boarding    ✦ Bag upsell
+  VY-S2026B   Seat 8A        Passport 2029             channels   AI confirm    pass sent   (AI-generated)
 ```
 
-### Live Scan (Real Passport)
+### Claire Dupont (BLOCKED — Expired Passport)
 
 ```
-Channels ──✅──→ Scan ──📷──→ Check-In ──✅/❌──→ Delivery
-  User         Camera       Validates        Depends on
-  picks        opens        against real     validation
-  channels     → Gemini     destination      result
-               Vision       rules
+Booking ──✅──→ Passenger ──✅──→ Doc Verify ──❌──→ Bags ──✅──→ Delivery ──✅──→ Check-In ──❌──→ Comms ──⏭──→ AI Nudge
+  PNR         Name, FRA      PASSPORT         Has bag   Email,     BLOCKED       Skipped     ✦ Skipped
+  VY-D2026C   Seat 22F       EXPIRED                   push       (doc issue)   (blocked)   (blocked)
+                              Dec 2025
 ```
 
 ## Timing
@@ -148,11 +202,25 @@ Channels ──✅──→ Scan ──📷──→ Check-In ──✅/❌─�
 Each stage has a minimum execution time for smooth visual pacing:
 
 ```
-Stage 1: Channels     →  min 800ms
-Stage 2: Scan         →  min 1500ms (mocked), variable (live)
-Stage 3: Check-In     →  min 2000ms (includes API calls)
-Stage 4: Delivery     →  min 1200ms
-Inter-stage pause     →  300ms
+Stage 1: Booking Retrieval      →  min 1000ms
+Stage 2: Passenger Information  →  min 800ms
+Stage 3: Document Verification  →  min 1500ms (includes /api/validate)
+Stage 4: Baggage Check          →  min 600ms
+Stage 5: Delivery Preferences   →  min 600ms
+Stage 6: Automatic Check-In     →  min 1800ms (includes AI generation)
+Stage 7: Post Check-In Comms    →  min 1200ms
+Stage 8: AI Smart Nudge         →  min 1500ms (includes AI generation)
+Inter-stage pause               →  400ms
 
-Typical total: 6-10 seconds
+Typical total: 11-15 seconds
+```
+
+## Technology Stack
+
+```
+Frontend:   Next.js 16.1.6 (App Router) + TypeScript strict + Tailwind CSS 4
+AI:         Google Gemini 2.0 Flash (Vision + Text)
+Storage:    localStorage (pipeline logs, booking submissions)
+Export:     CSV download (pipeline execution logs, booking data)
+Runtime:    Node.js v20 (no Python / FastAPI)
 ```

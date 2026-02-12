@@ -183,17 +183,28 @@ constants/
 
 ## Validation Rules Engine
 
-The validator (`lib/validator.ts`) runs 5 checks:
+The validator (`lib/validator.ts`) runs 7 checks:
 
 | Rule | Logic |
 |------|-------|
-| Passport expiry | Compare against route's `minPassportValidity` (e.g., UK = 6 months) |
-| Visa required | Check if nationality needs visa for destination |
+| Passport number format | 5-12 alphanumeric characters, no special chars |
+| Expiry date validity | Must be a valid parseable date |
+| Date of birth validity | Must be a valid parseable date |
+| Age check (18+) | Passenger must be at least 18 at travel date |
+| Passport expiry vs route | Compare against route's `passport_validity_months` |
 | ETIAS required | EU entry system check for non-EU nationals |
-| eVisitor required | Australian entry check |
-| Name matching | Levenshtein distance between passport name and booking name |
+| Name matching | Fuzzy match between passport name and booking name |
 
 Routes define their own requirements in `data/routes.json`.
+
+### Demo Data Scenarios
+
+| Passenger | Scenario | Expected Result |
+|-----------|----------|-----------------|
+| Maria Garcia Lopez | Happy path — valid passport (2027) | ✓ Checked in |
+| James Smith | Family trip, no bags | ✓ Checked in + bag nudge |
+| Claire Dupont | Expired passport (Dec 2025) | ✗ BLOCKED — passport expired |
+| Booking passenger | Manual/scan entry | Depends on input data |
 
 ## Gemini AI Integration
 

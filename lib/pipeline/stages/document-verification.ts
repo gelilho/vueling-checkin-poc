@@ -1,7 +1,7 @@
 /**
  * Document verification stage executor.
- * Calls the /api/validate endpoint to check passport validity
- * and name matching.
+ * Calls the /api/validate endpoint to check passport validity,
+ * passport number format, date of birth, age, and name matching.
  */
 
 import type { PipelineContext, CheckinStageResult } from "@/types";
@@ -27,6 +27,8 @@ export async function executeDocumentVerification(
         bookingName: ctx.name,
         destination: ctx.destination,
         travelDate: ctx.date,
+        passportNumber: ctx.passportNumber,
+        dateOfBirth: ctx.dateOfBirth,
       }),
     });
     const valData: { valid: boolean; issues: ValidationIssue[] } =
@@ -36,9 +38,20 @@ export async function executeDocumentVerification(
       "Passport": ctx.passportNumber || "N/A",
       "Issuing country": ctx.issuingCountry || ctx.nationality || "N/A",
       "Expiry": ctx.passportExpiry || "N/A",
-      "Passport validity": hasIssueType(valData.issues, "passport_expiry")
-        ? "\u26a0\ufe0f Issue"
-        : "\u2713 Valid",
+      "Date of birth": ctx.dateOfBirth || "N/A",
+      "Passport number": hasIssueType(valData.issues, "invalid_passport_number")
+        ? "\u26a0\ufe0f Invalid format"
+        : "\u2713 Valid format",
+      "Expiry date": hasIssueType(valData.issues, "invalid_expiry_date")
+        ? "\u26a0\ufe0f Invalid"
+        : hasIssueType(valData.issues, "passport_expiry")
+          ? "\u26a0\ufe0f Expired / insufficient"
+          : "\u2713 Valid",
+      "Age check": hasIssueType(valData.issues, "underage")
+        ? "\u26a0\ufe0f Under 18"
+        : hasIssueType(valData.issues, "invalid_dob")
+          ? "\u26a0\ufe0f Invalid DOB"
+          : "\u2713 18+",
       "Name verification": hasIssueType(valData.issues, "name_mismatch")
         ? "\u26a0\ufe0f Mismatch"
         : "\u2713 Match",
@@ -70,4 +83,3 @@ export async function executeDocumentVerification(
 function hasIssueType(issues: ValidationIssue[], type: string): boolean {
   return issues.some((i) => i.type === type);
 }
-
