@@ -5,11 +5,13 @@
 export { pipelineReducer, createInitialState } from "./reducer";
 export type { PipelineAction } from "./reducer";
 export {
+  // Demo pipeline stages
   executeChannels,
   executeScanMocked,
   executeScanLive,
   executeCheckin,
   executeDelivery,
+  // Orchestration pipeline stages
   executeBookingRetrieval,
   executePassengerData,
   executeDocumentVerification,
@@ -17,4 +19,6 @@ export {
   executeDeliveryPreferences,
   executeAutoCheckin,
   executePostCheckinComms,
+  executeAiPushNudge,
 } from "./stages";
+export type { AiNudgeStageResult } from "./stages";

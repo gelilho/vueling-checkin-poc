@@ -17,14 +17,18 @@ export function validatePassenger(
   const issues: ValidationIssue[] = [];
   const route = routes[destination];
 
-  // --- 1. Passport number format check ---
+  // --- 1. Document number format check (passport, DNI, NIE) ---
   if (passportNumber) {
     const cleaned = passportNumber.replace(/[\s-]/g, "");
-    if (cleaned.length < 5 || cleaned.length > 12 || !/^[A-Z0-9]+$/i.test(cleaned)) {
+    const isDNI = /^\d{8}[A-Z]$/i.test(cleaned);
+    const isNIE = /^[XYZ]\d{7}[A-Z]$/i.test(cleaned);
+    const isPassport = cleaned.length >= 5 && cleaned.length <= 12 && /^[A-Z0-9]+$/i.test(cleaned);
+
+    if (!isDNI && !isNIE && !isPassport) {
       issues.push({
         type: "invalid_passport_number",
         severity: "error",
-        details: `Passport number "${passportNumber}" is invalid. Must be 5–12 alphanumeric characters.`,
+        details: `Document number "${passportNumber}" is invalid. Accepted: passport (5-12 alphanum), DNI (8 digits + letter), or NIE (X/Y/Z + 7 digits + letter).`,
       });
     }
   }

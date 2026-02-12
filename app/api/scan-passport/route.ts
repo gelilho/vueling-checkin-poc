@@ -4,6 +4,11 @@ import { stripDataUrlPrefix } from "@/lib/utils";
 import { parseAndValidateMRZ } from "@/lib/mrz-parser";
 import type { ParsedPassport } from "@/types";
 
+/**
+ * POST /api/scan-passport
+ * Scans identity documents using Gemini Vision.
+ * Supports: passports, Spanish DNI, NIE, EU ID cards.
+ */
 export async function POST(req: NextRequest) {
   try {
     const { image } = await req.json();
@@ -23,7 +28,7 @@ export async function POST(req: NextRequest) {
     if (!rawData.success) {
       return NextResponse.json({
         success: false,
-        error: rawData.error || "Could not read passport. Try again with better lighting.",
+        error: rawData.error || "Could not read the document. Try again with better lighting.",
       });
     }
 
@@ -32,7 +37,7 @@ export async function POST(req: NextRequest) {
     if (!parsed) {
       return NextResponse.json({
         success: false,
-        error: "Could not parse passport data. Please try again.",
+        error: "Could not parse document data. Please try again with a clearer photo.",
       });
     }
 
@@ -41,11 +46,11 @@ export async function POST(req: NextRequest) {
       data: parsed,
     });
   } catch (error) {
-    console.error("Passport scan error:", error);
+    console.error("Document scan error:", error);
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to process passport image. Please try again.",
+        error: "Failed to process document image. Please try again.",
       },
       { status: 500 }
     );

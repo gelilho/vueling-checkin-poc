@@ -30,7 +30,7 @@ const ENDPOINTS: Endpoint[] = [
     path: "/api/validate",
     title: "Document Validation",
     description:
-      "Validates passenger documents: passport number format, expiry date, date of birth, age (18+), passport validity vs route requirements, and fuzzy name matching.",
+      "Validates passenger documents (passport, DNI, NIE): document number format, expiry date, date of birth, age (18+), passport validity vs route requirements, and fuzzy name matching.",
     layer: "backend",
     request: [
       { name: "passportExpiry", type: "string", required: true, description: "Passport expiry date (ISO)" },
@@ -39,7 +39,7 @@ const ENDPOINTS: Endpoint[] = [
       { name: "bookingName", type: "string", required: true, description: "Full name as on booking" },
       { name: "destination", type: "string", required: true, description: "IATA airport code (e.g. FCO)" },
       { name: "travelDate", type: "string", required: true, description: "Travel date (ISO)" },
-      { name: "passportNumber", type: "string", required: false, description: "Passport number (5-12 alphanum)" },
+      { name: "passportNumber", type: "string", required: false, description: "Document number: passport (5-12 alphanum), DNI (8 digits+letter), or NIE (X/Y/Z+7 digits+letter)" },
       { name: "dateOfBirth", type: "string", required: false, description: "Date of birth (ISO)" },
     ],
     responseExample: JSON.stringify(
@@ -68,12 +68,12 @@ const ENDPOINTS: Endpoint[] = [
   {
     method: "POST",
     path: "/api/scan-passport",
-    title: "Passport OCR Scan",
+    title: "Document OCR Scan",
     description:
-      "Sends a passport photo to Gemini Vision AI to extract MRZ data: full name, passport number, nationality, date of birth, expiry date, gender, and issuing country.",
+      "Sends a photo of a passport, Spanish DNI, NIE, or EU ID card to Gemini Vision AI. Extracts identity fields: full name, document number, nationality, date of birth, expiry date, gender, and issuing country.",
     layer: "ai",
     request: [
-      { name: "image", type: "string", required: true, description: "Base64-encoded passport image (with or without data URL prefix)" },
+      { name: "image", type: "string", required: true, description: "Base64-encoded document image — passport, DNI, NIE, or EU ID card (with or without data URL prefix)" },
     ],
     responseExample: JSON.stringify(
       {
@@ -153,10 +153,10 @@ const PROJECT_LAYERS: LayerInfo[] = [
     title: "Frontend (UI)",
     color: "bg-blue-50 border-blue-200",
     entries: [
-      { path: "app/page.tsx", description: "Root redirect to /onboarding" },
-      { path: "app/onboarding/page.tsx", description: "Booking flow (default tab)" },
+      { path: "app/page.tsx", description: "Root redirect to /impact" },
+      { path: "app/impact/page.tsx", description: "Business Impact dashboard" },
+      { path: "app/onboarding/page.tsx", description: "Booking flow" },
       { path: "app/pipeline/page.tsx", description: "Pipeline Demo dashboard" },
-      { path: "app/impact/page.tsx", description: "Impact metrics" },
       { path: "app/api-docs/page.tsx", description: "API documentation (this page)" },
       { path: "components/", description: "18 React components (OrchestrationDashboard, PipelineStage, BoardingPass, etc.)" },
       { path: "hooks/", description: "usePipeline.ts, useOrchestrationPipeline.ts" },
@@ -166,8 +166,8 @@ const PROJECT_LAYERS: LayerInfo[] = [
     title: "Backend (API Routes)",
     color: "bg-green-50 border-green-200",
     entries: [
-      { path: "app/api/validate/route.ts", description: "Document validation engine (7 rules)" },
-      { path: "app/api/scan-passport/route.ts", description: "Gemini Vision passport OCR" },
+      { path: "app/api/validate/route.ts", description: "Document validation engine (passport, DNI, NIE)" },
+      { path: "app/api/scan-passport/route.ts", description: "Gemini Vision document OCR (passport, DNI, NIE, EU ID)" },
       { path: "app/api/generate-nudge/route.ts", description: "AI nudge/message generation" },
     ],
   },
@@ -175,9 +175,9 @@ const PROJECT_LAYERS: LayerInfo[] = [
     title: "Business Logic (Shared)",
     color: "bg-purple-50 border-purple-200",
     entries: [
-      { path: "lib/validator.ts", description: "Passport validation rules engine" },
-      { path: "lib/gemini/", description: "Gemini AI client, prompts, config" },
-      { path: "lib/mrz-parser.ts", description: "Machine Readable Zone parser" },
+      { path: "lib/validator.ts", description: "Document validation rules engine (passport, DNI, NIE)" },
+      { path: "lib/gemini/", description: "Gemini AI: client, 4 LLM prompts, config" },
+      { path: "lib/mrz-parser.ts", description: "Document data parser (MRZ + DNI/NIE)" },
       { path: "lib/pipeline/", description: "Pipeline engine: reducer, 11 stage executors" },
       { path: "lib/utils/", description: "Helpers: format, logger, storage, string utils" },
     ],

@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validatePassenger } from "@/lib/validator";
 
+/**
+ * POST /api/validate
+ * Validates passenger documents: number format (passport/DNI/NIE),
+ * expiry date, DOB, age (18+), route requirements, ETIAS, name matching.
+ */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

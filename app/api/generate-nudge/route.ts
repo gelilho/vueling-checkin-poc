@@ -8,6 +8,14 @@ import {
 import { fillTemplate } from "@/lib/utils/string";
 import type { NudgeType } from "@/types";
 
+/**
+ * POST /api/generate-nudge
+ * Generates AI push messages via Gemini 2.0 Flash.
+ * Types: bag_nudge, checkin_confirmation, document_issue.
+ * Falls back to static message if Gemini is unavailable.
+ *
+ * Prompts defined in: lib/gemini/prompts.ts
+ */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

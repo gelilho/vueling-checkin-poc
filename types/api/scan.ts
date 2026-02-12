@@ -1,6 +1,9 @@
 /**
- * API types for passport scanning endpoint.
+ * API types for the document scanning endpoint (/api/scan-passport).
+ * Supports passports, Spanish DNI, NIE, and EU ID cards.
  */
+
+export type DocumentType = "passport" | "dni" | "nie" | "id_card";
 
 export interface PassportScanResponse {
   success: boolean;
@@ -14,13 +17,15 @@ export interface PassportScanResponse {
     gender: string;
     expiryDate: string;
     issuingCountry: string;
+    documentType?: DocumentType;
   };
   error?: string;
 }
 
-/** Raw response from Gemini vision for passport reading */
+/** Raw response from Gemini vision for document reading */
 export interface GeminiPassportData {
   success: boolean;
+  document_type?: string;
   full_name?: string;
   surname?: string;
   given_names?: string;

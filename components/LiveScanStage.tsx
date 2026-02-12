@@ -74,7 +74,7 @@ export default function LiveScanStage({
         });
       }, Object.keys(data).length * DATA_REVEAL.DEFAULT_STAGGER_MS + DATA_REVEAL.COMPLETION_BUFFER_MS);
     } catch {
-      onError("Failed to process passport. Please try again.");
+      onError("Failed to process document. Please try again.");
     }
   }
 
@@ -91,7 +91,7 @@ export default function LiveScanStage({
           </div>
         )}
         <div className="w-8 h-8 rounded-full border-2 border-vueling-yellow border-t-transparent animate-spin mb-2" />
-        <p className="text-xs text-vueling-gray">AI is reading your passport...</p>
+        <p className="text-xs text-vueling-gray">AI is reading your document...</p>
       </div>
     );
   }

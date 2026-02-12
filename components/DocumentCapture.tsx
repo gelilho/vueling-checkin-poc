@@ -104,7 +104,7 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
     return (
       <div className="space-y-3">
         <p className="text-xs text-vueling-gray mb-2">
-          Upload a photo of your passport or ID to enable automatic check-in
+          Upload a photo of your passport, DNI, or ID card to enable automatic check-in
         </p>
 
         {/* Upload photo */}
