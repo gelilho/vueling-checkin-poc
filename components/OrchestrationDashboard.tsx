@@ -251,35 +251,6 @@ export default function OrchestrationDashboard({ onReset }: Props) {
           ))}
         </div>
 
-        {/* Pipeline execution log summary */}
-        {executionCount > 0 && !processingId && (
-          <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-gray-100 mb-4 animate-fade-in">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-vueling-green/10 flex items-center justify-center">
-                <svg className="w-4 h-4 text-vueling-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-vueling-dark">
-                  {executionCount} pipeline execution{executionCount !== 1 ? "s" : ""} logged
-                </p>
-                <p className="text-[10px] text-vueling-gray">All stages & timestamps stored</p>
-              </div>
-            </div>
-            <button
-              onClick={() => downloadPipelineExecutionsCSV()}
-              className="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-vueling-dark text-white
-                hover:bg-vueling-dark/80 transition-all flex items-center gap-1.5"
-            >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              Export CSV
-            </button>
-          </div>
-        )}
-
         {/* Passenger roster */}
         {selectedGroup && !processingId && (
           <PassengerRoster
@@ -304,6 +275,35 @@ export default function OrchestrationDashboard({ onReset }: Props) {
             }
             onReset={() => setProcessingId(null)}
           />
+        )}
+
+        {/* Pipeline execution log summary — at the bottom */}
+        {executionCount > 0 && !processingId && (
+          <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-gray-100 mt-6 mb-3 animate-fade-in">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-vueling-green/10 flex items-center justify-center">
+                <svg className="w-4 h-4 text-vueling-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-vueling-dark">
+                  {executionCount} pipeline execution{executionCount !== 1 ? "s" : ""} logged
+                </p>
+                <p className="text-[10px] text-vueling-gray">All stages & timestamps stored</p>
+              </div>
+            </div>
+            <button
+              onClick={() => downloadPipelineExecutionsCSV()}
+              className="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-vueling-dark text-white
+                hover:bg-vueling-dark/80 transition-all flex items-center gap-1.5"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Export CSV
+            </button>
+          </div>
         )}
 
         {/* CSV Data Visor — pipeline execution log */}
