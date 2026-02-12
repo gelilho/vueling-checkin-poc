@@ -17,7 +17,8 @@ export type StageId =
   | "bag-status"
   | "delivery-preferences"
   | "auto-checkin"
-  | "post-checkin-comms";
+  | "post-checkin-comms"
+  | "ai-push-nudge";
 
 export type StageStatus = "waiting" | "running" | "completed" | "error" | "skipped";
 

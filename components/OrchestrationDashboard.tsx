@@ -10,6 +10,7 @@ import {
   getPipelineExecutionCount,
   getPipelineExecutions,
   downloadPipelineExecutionsCSV,
+  clearPipelineExecutions,
 } from "@/lib/utils/pipeline-log-storage";
 import type { PipelineExecutionLog } from "@/lib/utils/pipeline-log-storage";
 import FlightCard from "./FlightCard";
@@ -106,6 +107,11 @@ interface Props {
 
 export default function OrchestrationDashboard({ onReset }: Props) {
   const [bookingPassenger, setBookingPassenger] = useState<Passenger | null>(null);
+
+  // Clear stale pipeline data on app start (server restart = fresh state)
+  useEffect(() => {
+    clearPipelineExecutions();
+  }, []);
 
   // Load booking data from localStorage on mount
   useEffect(() => {
@@ -320,62 +326,57 @@ export default function OrchestrationDashboard({ onReset }: Props) {
             </div>
 
             <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-              {/* Header */}
-              <div className="grid grid-cols-[1fr_70px_70px_60px] gap-1 px-3 py-2 bg-gray-50 border-b border-gray-200">
-                <span className="text-[9px] font-bold text-vueling-gray uppercase">Passenger</span>
-                <span className="text-[9px] font-bold text-vueling-gray uppercase">Flight</span>
-                <span className="text-[9px] font-bold text-vueling-gray uppercase">Duration</span>
-                <span className="text-[9px] font-bold text-vueling-gray uppercase text-right">Status</span>
+              {/* Table header */}
+              <div className="grid grid-cols-[1fr_1fr_80px_55px] gap-1 px-3 py-2 bg-gray-50 border-b border-gray-200">
+                <span className="text-[8px] font-bold text-vueling-gray uppercase">Journey Step</span>
+                <span className="text-[8px] font-bold text-vueling-gray uppercase">Timestamp</span>
+                <span className="text-[8px] font-bold text-vueling-gray uppercase">Passenger</span>
+                <span className="text-[8px] font-bold text-vueling-gray uppercase text-right">Status</span>
               </div>
 
-              {/* Rows */}
-              {executions.map((exec) => (
-                <details key={exec.id} className="group border-b border-gray-100 last:border-0">
-                  <summary className="grid grid-cols-[1fr_70px_70px_60px] gap-1 px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors items-center">
-                    <span className="text-[11px] font-medium text-vueling-dark truncate">
-                      {exec.passengerName}
+              {/* Flat rows — one per stage per execution */}
+              {executions.flatMap((exec) =>
+                exec.stages.map((stage) => (
+                  <div
+                    key={`${exec.id}-${stage.stageId}`}
+                    className="grid grid-cols-[1fr_1fr_80px_55px] gap-1 px-3 py-1.5 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
+                  >
+                    <span className="text-[10px] text-vueling-dark truncate flex items-center gap-1">
+                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                        stage.status === "completed"
+                          ? "bg-vueling-green"
+                          : stage.status === "error"
+                            ? "bg-red-400"
+                            : "bg-gray-300"
+                      }`} />
+                      {stage.stageTitle}
                     </span>
-                    <span className="text-[10px] text-vueling-gray font-mono">
-                      {exec.flight}
+                    <span className="text-[9px] text-vueling-gray font-mono">
+                      {new Date(stage.startedAt).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                      })}{" "}
+                      {new Date(stage.startedAt).toLocaleTimeString("en-GB", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      })}
                     </span>
-                    <span className="text-[10px] text-vueling-gray font-mono">
-                      {(exec.totalDurationMs / 1000).toFixed(1)}s
+                    <span className="text-[9px] text-vueling-dark truncate font-medium">
+                      {exec.passengerName.split(" ")[0]}
                     </span>
-                    <span className={`text-[9px] font-bold text-right ${
-                      exec.result === "checked-in" ? "text-vueling-green" : "text-red-500"
+                    <span className={`text-[8px] font-bold text-right ${
+                      stage.status === "completed"
+                        ? "text-vueling-green"
+                        : stage.status === "error"
+                          ? "text-red-500"
+                          : "text-gray-400"
                     }`}>
-                      {exec.result === "checked-in" ? "✓ Done" : "✗ Blocked"}
+                      {stage.status === "completed" ? "✓" : stage.status === "error" ? "✗" : "—"}
                     </span>
-                  </summary>
-
-                  {/* Stage details */}
-                  <div className="px-3 pb-2 pt-1 bg-gray-50/50">
-                    <div className="text-[9px] text-vueling-gray mb-1 font-mono">
-                      {new Date(exec.startedAt).toLocaleString()}
-                    </div>
-                    {exec.stages.map((stage) => (
-                      <div
-                        key={stage.stageId}
-                        className="flex items-center gap-2 py-0.5"
-                      >
-                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                          stage.status === "completed"
-                            ? "bg-vueling-green"
-                            : stage.status === "error"
-                              ? "bg-red-400"
-                              : "bg-gray-300"
-                        }`} />
-                        <span className="text-[10px] text-vueling-dark flex-1 truncate">
-                          {stage.stageTitle}
-                        </span>
-                        <span className="text-[9px] text-vueling-gray font-mono">
-                          {stage.durationMs}ms
-                        </span>
-                      </div>
-                    ))}
                   </div>
-                </details>
-              ))}
+                ))
+              )}
             </div>
 
             <p className="text-[9px] text-vueling-gray mt-1.5 text-center">

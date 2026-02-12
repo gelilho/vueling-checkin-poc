@@ -89,6 +89,8 @@ export default function OrchestrationPipelineView({
     confirmationMessage,
     issueMessage,
     bagNudge,
+    nudgeMessage,
+    nudgeAiGenerated,
     checkinValid,
     runOrchestration,
     getStageDuration,
@@ -166,33 +168,43 @@ export default function OrchestrationPipelineView({
                 </div>
               )}
 
-              {/* Post check-in: boarding pass + bag nudge */}
+              {/* Post check-in: boarding pass */}
               {stageId === "post-checkin-comms" && stageState.status === "completed" && (
-                <>
-                  <div className="mt-3 animate-scale-in">
-                    <BoardingPass
-                      passengerName={passenger.name || ""}
-                      flight={flight.flight_number}
-                      origin={flight.origin}
-                      originCity={flight.origin_city}
-                      destination={flight.destination}
-                      destinationCity={route?.city || flight.destination_city}
-                      date={flight.date}
-                      departure={flight.departure_time}
-                      seat={passenger.assigned_seat || ""}
-                      gate={flight.gate}
-                      terminal={flight.terminal}
-                    />
+                <div className="mt-3 animate-scale-in">
+                  <BoardingPass
+                    passengerName={passenger.name || ""}
+                    flight={flight.flight_number}
+                    origin={flight.origin}
+                    originCity={flight.origin_city}
+                    destination={flight.destination}
+                    destinationCity={route?.city || flight.destination_city}
+                    date={flight.date}
+                    departure={flight.departure_time}
+                    seat={passenger.assigned_seat || ""}
+                    gate={flight.gate}
+                    terminal={flight.terminal}
+                  />
+                </div>
+              )}
+
+              {/* AI Smart Nudge: clearly marked AI-generated content */}
+              {stageId === "ai-push-nudge" && stageState.status === "completed" && nudgeMessage && (
+                <div className="mt-3 p-3 rounded-lg bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200/50">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">
+                      ✦ AI-Generated Content
+                    </span>
+                    <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 font-semibold">
+                      {nudgeAiGenerated ? "Gemini 2.0" : "Fallback"}
+                    </span>
                   </div>
-                  {bagNudge && (
-                    <div className="mt-3 p-3 rounded-lg bg-blue-50 border border-blue-100">
-                      <p className="text-[10px] font-semibold text-blue-600 uppercase tracking-wide mb-1">
-                        Smart Nudge
-                      </p>
-                      <p className="text-xs text-blue-900">{bagNudge}</p>
-                    </div>
-                  )}
-                </>
+                  <div className="p-2.5 rounded-lg bg-white/70 border border-purple-100">
+                    <p className="text-xs text-vueling-dark leading-relaxed">{nudgeMessage}</p>
+                  </div>
+                  <p className="text-[8px] text-purple-400 mt-1.5 italic">
+                    Push notification ready to deliver to passenger
+                  </p>
+                </div>
               )}
             </PipelineStage>
           );

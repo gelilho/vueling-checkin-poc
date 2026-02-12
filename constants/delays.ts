@@ -26,6 +26,7 @@ export const ORCH_STAGE_DURATIONS = {
   "delivery-preferences": 600,
   "auto-checkin": 1800,
   "post-checkin-comms": 1200,
+  "ai-push-nudge": 1500,
 } as const;
 
 /** Delay between passengers in batch processing (ms) */

@@ -32,6 +32,7 @@ export const ORCH_STAGE_ORDER: StageId[] = [
   "delivery-preferences",
   "auto-checkin",
   "post-checkin-comms",
+  "ai-push-nudge",
 ];
 
 export const ORCH_STAGE_META: Record<string, StageMeta> = {
@@ -42,6 +43,7 @@ export const ORCH_STAGE_META: Record<string, StageMeta> = {
   "delivery-preferences": { title: "Delivery Preferences", icon: "channels" },
   "auto-checkin": { title: "Automatic Check-In", icon: "checkin" },
   "post-checkin-comms": { title: "Post Check-In Comms", icon: "comms" },
+  "ai-push-nudge": { title: "AI Smart Nudge", icon: "ai" },
 };
 
 export const ORCH_PIPELINE_CONFIG: PipelineConfig = {

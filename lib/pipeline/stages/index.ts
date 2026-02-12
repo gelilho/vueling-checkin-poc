@@ -15,3 +15,5 @@ export { executeBagStatus } from "./bag-status";
 export { executeDeliveryPreferences } from "./delivery-preferences";
 export { executeAutoCheckin } from "./auto-checkin";
 export { executePostCheckinComms } from "./post-checkin-comms";
+export { executeAiPushNudge } from "./ai-push-nudge";
+export type { AiNudgeStageResult } from "./ai-push-nudge";
