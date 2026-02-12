@@ -45,10 +45,3 @@ export async function generateText(prompt: string): Promise<string> {
   return result.response.text();
 }
 
-/** Generate and parse JSON from a prompt */
-export async function generateJSON<T>(prompt: string): Promise<T> {
-  const model = getModel();
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
-  return JSON.parse(cleanJsonResponse(text)) as T;
-}

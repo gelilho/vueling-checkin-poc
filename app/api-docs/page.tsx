@@ -131,55 +131,6 @@ const ENDPOINTS: Endpoint[] = [
     "language": "en"
   }'`,
   },
-  {
-    method: "POST",
-    path: "/api/generate-briefing",
-    title: "Airport Briefing Generation",
-    description:
-      "Generates a structured AI airport briefing in JSON format via Gemini 2.0 Flash: summary, suggested arrival time with reasoning, step-by-step guide, and a destination tip.",
-    layer: "ai",
-    request: [
-      { name: "name", type: "string", required: true, description: "Passenger name" },
-      { name: "flight_number", type: "string", required: true, description: "Flight number" },
-      { name: "origin", type: "string", required: true, description: "Origin airport" },
-      { name: "destination", type: "string", required: true, description: "Destination airport" },
-      { name: "date", type: "string", required: true, description: "Flight date" },
-      { name: "departure_time", type: "string", required: true, description: "Departure time" },
-      { name: "terminal", type: "string", required: true, description: "Terminal" },
-      { name: "gate", type: "string", required: true, description: "Gate" },
-      { name: "doc_status", type: "string", required: false, description: 'Document status (default: "Valid")' },
-      { name: "bag_status", type: "string", required: false, description: 'Bag status (default: "No checked bag")' },
-      { name: "language", type: "string", required: false, description: 'Language code (default: "en")' },
-    ],
-    responseExample: JSON.stringify(
-      {
-        summary: "Your flight VY1234 to Rome departs at 14:30 from Terminal 1, Gate B22.",
-        suggested_arrival: "12:00",
-        arrival_reasoning: "2.5 hours before departure for international EU flight.",
-        steps: [
-          "Arrive at BCN Terminal 1 by 12:00",
-          "Head to security — estimated 20 min wait",
-          "Proceed to Gate B22",
-          "Boarding begins at 14:00",
-        ],
-        destination_tip: "The Trastevere neighborhood has the best local trattorias!",
-      },
-      null,
-      2
-    ),
-    curlExample: `curl -X POST http://localhost:3000/api/generate-briefing \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "name": "Maria",
-    "flight_number": "VY1234",
-    "origin": "BCN",
-    "destination": "FCO",
-    "date": "2026-03-02",
-    "departure_time": "14:30",
-    "terminal": "T1",
-    "gate": "B22"
-  }'`,
-  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -218,7 +169,6 @@ const PROJECT_LAYERS: LayerInfo[] = [
       { path: "app/api/validate/route.ts", description: "Document validation engine (7 rules)" },
       { path: "app/api/scan-passport/route.ts", description: "Gemini Vision passport OCR" },
       { path: "app/api/generate-nudge/route.ts", description: "AI nudge/message generation" },
-      { path: "app/api/generate-briefing/route.ts", description: "AI airport briefing (JSON)" },
     ],
   },
   {
@@ -340,7 +290,7 @@ export default function ApiDocsPage() {
       <div>
         <h1 className="text-lg font-bold text-vueling-dark">API Reference</h1>
         <p className="text-xs text-gray-500 mt-1">
-          4 REST endpoints &middot; Next.js API Routes &middot; No FastAPI &middot; Node.js v20
+          3 REST endpoints &middot; Next.js API Routes &middot; No FastAPI &middot; Node.js v20
         </p>
       </div>
 

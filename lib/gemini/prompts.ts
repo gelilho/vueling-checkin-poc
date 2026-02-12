@@ -43,36 +43,6 @@ Rules:
 - Write in the specified language
 - Return ONLY the message text, no JSON`;
 
-export const AIRPORT_BRIEFING_PROMPT = `You are the Vueling app assistant. Generate a personalized
-airport readiness briefing.
-
-Passenger context:
-- Name: {{name}}
-- Flight: {{flight_number}} {{origin}} → {{destination}}
-- Date: {{date}}
-- Departure: {{departure_time}}
-- Terminal: {{terminal}}
-- Gate: {{gate}}
-- Document status: {{doc_status}}
-- Checked bag: {{bag_status}}
-- Travel party: {{party_info}}
-- Estimated security wait: {{security_estimate}} minutes
-
-Generate a briefing as JSON with these fields:
-{
-  "summary": "One-line status overview",
-  "suggested_arrival": "e.g. 14:30 — 2 hours before departure",
-  "arrival_reasoning": "Why this time",
-  "steps": ["Step 1", "Step 2", "Step 3", "Step 4"],
-  "destination_tip": "A helpful tip for this destination"
-}
-
-Rules:
-- Concise. No corporate fluff.
-- Language: {{language}}
-- Under 150 words total
-- Return ONLY valid JSON`;
-
 export const DOCUMENT_ISSUE_PROMPT = `You are the Vueling app assistant. A passenger has a document
 issue that could prevent them from flying. Explain it clearly
 and helpfully.
