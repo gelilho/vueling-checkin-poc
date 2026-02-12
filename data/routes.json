@@ -1,0 +1,58 @@
+{
+  "FCO": {
+    "city": "Rome",
+    "country": "Italy",
+    "schengen": true,
+    "passport_validity_months": 3,
+    "visa_free": ["ESP", "FRA", "DEU", "GBR", "USA", "BRA", "ARG", "COL"],
+    "visa_required": ["CHN", "IND", "NGA", "PAK"],
+    "etias_required_from": ["GBR", "USA", "BRA", "ARG", "COL"],
+    "security_avg_minutes": 18,
+    "tips": "Rome Fiumicino is large — allow extra time for terminal transfer if connecting."
+  },
+  "LHR": {
+    "city": "London",
+    "country": "United Kingdom",
+    "schengen": false,
+    "passport_validity_months": 6,
+    "visa_free": ["ESP", "FRA", "DEU", "USA"],
+    "visa_required": ["CHN", "IND", "NGA", "PAK"],
+    "etias_required_from": [],
+    "evisitor_required": ["BRA", "COL", "ARG"],
+    "security_avg_minutes": 25,
+    "tips": "UK requires ETA for many nationalities since 2025. Check before travel."
+  },
+  "BCN": {
+    "city": "Barcelona",
+    "country": "Spain",
+    "schengen": true,
+    "passport_validity_months": 3,
+    "visa_free": ["GBR", "USA", "BRA", "ARG"],
+    "visa_required": ["CHN", "IND", "NGA"],
+    "etias_required_from": ["GBR", "USA", "BRA", "ARG", "COL"],
+    "security_avg_minutes": 15,
+    "tips": "BCN T1 has fast-track security available. Vueling operates from T1."
+  },
+  "ORY": {
+    "city": "Paris",
+    "country": "France",
+    "schengen": true,
+    "passport_validity_months": 3,
+    "visa_free": ["ESP", "GBR", "USA", "BRA", "ARG"],
+    "visa_required": ["CHN", "IND", "NGA"],
+    "etias_required_from": ["GBR", "USA", "BRA", "ARG"],
+    "security_avg_minutes": 22,
+    "tips": "Orly is smaller than CDG — shorter walks but fewer dining options."
+  },
+  "AMS": {
+    "city": "Amsterdam",
+    "country": "Netherlands",
+    "schengen": true,
+    "passport_validity_months": 3,
+    "visa_free": ["ESP", "GBR", "USA", "BRA"],
+    "visa_required": ["CHN", "IND", "NGA"],
+    "etias_required_from": ["GBR", "USA", "BRA"],
+    "security_avg_minutes": 20,
+    "tips": "Schiphol can have long security queues during morning peaks."
+  }
+}

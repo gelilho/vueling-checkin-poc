@@ -1,0 +1,44 @@
+{
+  "VY1234": {
+    "flight_number": "VY1234",
+    "origin": "BCN",
+    "origin_city": "Barcelona",
+    "destination": "FCO",
+    "destination_city": "Rome",
+    "date": "2026-03-15",
+    "departure_time": "16:35",
+    "arrival_time": "18:45",
+    "terminal": "T1",
+    "gate": "B34",
+    "aircraft": "A320neo",
+    "status": "On time"
+  },
+  "VY8920": {
+    "flight_number": "VY8920",
+    "origin": "BCN",
+    "origin_city": "Barcelona",
+    "destination": "LHR",
+    "destination_city": "London",
+    "date": "2026-03-20",
+    "departure_time": "09:15",
+    "arrival_time": "10:50",
+    "terminal": "T1",
+    "gate": "A12",
+    "aircraft": "A321",
+    "status": "On time"
+  },
+  "VY6012": {
+    "flight_number": "VY6012",
+    "origin": "LGW",
+    "origin_city": "London Gatwick",
+    "destination": "BCN",
+    "destination_city": "Barcelona",
+    "date": "2026-04-10",
+    "departure_time": "07:45",
+    "arrival_time": "11:05",
+    "terminal": "S",
+    "gate": "51",
+    "aircraft": "A320",
+    "status": "On time"
+  }
+}
