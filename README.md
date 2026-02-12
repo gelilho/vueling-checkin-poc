@@ -19,8 +19,7 @@ The entire pipeline runs on a single screen with animated stages, real Gemini AP
 
 | Scenario | What happens |
 |----------|-------------|
-| **Maria** (BCN to Rome) | Happy path. All checks pass, smooth check-in |
-| **Joao** (BCN to London) | Passport expires in 44 days. UK requires 6 months. Blocked with AI explanation |
+| **María** (BCN to Rome) | Happy path. All checks pass, smooth check-in |
 | **The Smiths** (LGW to Barcelona) | Family of 4, no bags. Gets AI-generated bag nudge |
 | **Live Scan** | Scan your own passport with the camera. Real Gemini vision |
 

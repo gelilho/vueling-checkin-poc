@@ -1,9 +1,10 @@
 /**
  * Pipeline state machine reducer.
  * Pure function — no side effects, no API calls.
+ * Generic: works with any PipelineConfig (demo or orchestration).
  */
 
-import type { StageId, StageState, PipelineState } from "@/types";
+import type { StageId, StageState, PipelineState, PipelineConfig } from "@/types";
 
 // --- Actions ---
 
@@ -13,6 +14,7 @@ export type PipelineAction =
   | { type: "COMPLETE_STAGE"; stage: StageId; data: Record<string, string>; summary: string }
   | { type: "ERROR_STAGE"; stage: StageId; error: string; data?: Record<string, string> }
   | { type: "SKIP_STAGE"; stage: StageId; reason: string }
+  | { type: "RETRY_STAGE"; stage: StageId }
   | { type: "COMPLETE_PIPELINE" }
   | { type: "RESET" };
 
@@ -29,17 +31,18 @@ function createStageState(): StageState {
   };
 }
 
-export function createInitialState(): PipelineState {
+export function createInitialState(config: PipelineConfig): PipelineState {
+  const stages: Record<string, StageState> = {};
+  for (const stageId of config.stageOrder) {
+    stages[stageId] = createStageState();
+  }
+
   return {
     currentStage: "idle",
-    stages: {
-      channels: createStageState(),
-      scan: createStageState(),
-      checkin: createStageState(),
-      delivery: createStageState(),
-    },
+    stages,
     totalStartedAt: null,
     totalCompletedAt: null,
+    config,
   };
 }
 
@@ -52,8 +55,8 @@ export function pipelineReducer(
   switch (action.type) {
     case "START_PIPELINE":
       return {
-        ...createInitialState(),
-        currentStage: "channels",
+        ...createInitialState(state.config),
+        currentStage: state.config.stageOrder[0],
         totalStartedAt: Date.now(),
       };
 
@@ -115,6 +118,23 @@ export function pipelineReducer(
         },
       };
 
+    case "RETRY_STAGE":
+      return {
+        ...state,
+        currentStage: action.stage,
+        stages: {
+          ...state.stages,
+          [action.stage]: {
+            status: "running",
+            data: null,
+            summary: "",
+            startedAt: Date.now(),
+            completedAt: null,
+            error: null,
+          },
+        },
+      };
+
     case "COMPLETE_PIPELINE":
       return {
         ...state,
@@ -123,7 +143,7 @@ export function pipelineReducer(
       };
 
     case "RESET":
-      return createInitialState();
+      return createInitialState(state.config);
 
     default:
       return state;

@@ -24,34 +24,11 @@
     "scenario": "happy_path",
     "label": "María — Solo trip to Rome",
     "description": "Everything is fine. Passport valid. Smooth check-in.",
-    "language": "es"
-  },
-  {
-    "id": "joao",
-    "name": "João Silva",
-    "passport_name": "SILVA, JOAO",
-    "nationality": "BRA",
-    "passport_number": "BR7891011",
-    "date_of_birth": "1985-11-22",
-    "gender": "M",
-    "passport_expiry": "2026-05-03",
-    "issuing_country": "BRA",
-    "flight": "VY8920",
-    "origin": "BCN",
-    "destination": "LHR",
-    "date": "2026-03-20",
-    "departure": "09:15",
-    "terminal": "T1",
-    "gate": "A12",
-    "companion": null,
-    "companion_seat": null,
-    "assigned_seat": "22F",
-    "checked_bag": true,
-    "trip_days": 3,
-    "scenario": "passport_expiring",
-    "label": "João — Passport expiring soon",
-    "description": "Passport expires in 44 days. UK requires 6 months validity.",
-    "language": "en"
+    "language": "es",
+    "pnr": "VY-M2026A",
+    "booking_date": "2026-01-15",
+    "loyalty_tier": "Silver",
+    "delivery_preferences": ["email", "push", "app"]
   },
   {
     "id": "smith",
@@ -78,7 +55,11 @@
     "scenario": "family_no_bag",
     "label": "The Smiths — Family of 4 to Barcelona",
     "description": "Family trip, no bags booked. Smart nudge opportunity.",
-    "language": "en"
+    "language": "en",
+    "pnr": "VY-S2026B",
+    "booking_date": "2026-02-20",
+    "loyalty_tier": null,
+    "delivery_preferences": ["email", "sms", "push", "app"]
   },
   {
     "id": "custom",

@@ -13,10 +13,6 @@ export const SCENARIO_META: Record<string, ScenarioMeta> = {
     color: "border-vueling-green/30 bg-green-50",
     icon: "✈️",
   },
-  passport_expiring: {
-    color: "border-vueling-orange/30 bg-amber-50",
-    icon: "⚠️",
-  },
   family_no_bag: {
     color: "border-blue-200 bg-blue-50",
     icon: "👨‍👩‍👧‍👦",

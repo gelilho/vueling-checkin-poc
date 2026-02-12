@@ -17,12 +17,13 @@ import {
   executeDelivery,
 } from "@/lib/pipeline";
 import { delay } from "@/lib/utils";
-import { INTER_STAGE_DELAY_MS } from "@/constants";
+import { INTER_STAGE_DELAY_MS, DEMO_PIPELINE_CONFIG } from "@/constants";
 import type {
   DeliveryChannel,
   PipelineContext,
   PipelineState,
   StageId,
+  StageState,
   ScanStageResult,
 } from "@/types";
 import type { PipelineAction } from "@/lib/pipeline";
@@ -36,6 +37,7 @@ export interface UsePipelineReturn {
   bagNudge: string | null;
   checkinValid: boolean;
   runPipeline: () => Promise<void>;
+  retryScan: () => void;
   resolveLiveScan: (result: ScanStageResult) => void;
   failLiveScan: (error: string) => void;
   dispatch: React.Dispatch<PipelineAction>;
@@ -48,7 +50,7 @@ export function usePipeline(
   isLiveScan: boolean,
   onLiveScanDataReceived?: (parsedData: Record<string, string>) => void
 ): UsePipelineReturn {
-  const [state, dispatch] = useReducer(pipelineReducer, createInitialState());
+  const [state, dispatch] = useReducer(pipelineReducer, createInitialState(DEMO_PIPELINE_CONFIG));
   const [channels, setChannels] = useState<DeliveryChannel[]>(["email", "push", "app"]);
   const [confirmationMessage, setConfirmationMessage] = useState("");
   const [issueMessage, setIssueMessage] = useState("");
@@ -64,6 +66,12 @@ export function usePipeline(
 
   const failLiveScan = useCallback((error: string) => {
     liveScanRejectRef.current?.(new Error(error));
+  }, []);
+
+  const retryScan = useCallback(() => {
+    dispatch({ type: "RETRY_STAGE", stage: "scan" as StageId });
+    liveScanResolveRef.current = null;
+    liveScanRejectRef.current = null;
   }, []);
 
   const getStageDuration = useCallback(
@@ -168,6 +176,7 @@ export function usePipeline(
     bagNudge,
     checkinValid,
     runPipeline,
+    retryScan,
     resolveLiveScan,
     failLiveScan,
     dispatch,

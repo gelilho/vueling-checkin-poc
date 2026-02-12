@@ -10,18 +10,6 @@
     "security_avg_minutes": 18,
     "tips": "Rome Fiumicino is large — allow extra time for terminal transfer if connecting."
   },
-  "LHR": {
-    "city": "London",
-    "country": "United Kingdom",
-    "schengen": false,
-    "passport_validity_months": 6,
-    "visa_free": ["ESP", "FRA", "DEU", "USA"],
-    "visa_required": ["CHN", "IND", "NGA", "PAK"],
-    "etias_required_from": [],
-    "evisitor_required": ["BRA", "COL", "ARG"],
-    "security_avg_minutes": 25,
-    "tips": "UK requires ETA for many nationalities since 2025. Check before travel."
-  },
   "BCN": {
     "city": "Barcelona",
     "country": "Spain",

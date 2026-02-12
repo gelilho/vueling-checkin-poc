@@ -1,8 +1,24 @@
 /**
  * UI types for the pipeline visualization.
+ * Supports both demo (4-stage) and orchestration (7-stage) pipelines.
  */
 
-export type StageId = "channels" | "scan" | "checkin" | "delivery";
+/** All possible stage identifiers across both pipeline modes */
+export type StageId =
+  // Demo pipeline stages
+  | "channels"
+  | "scan"
+  | "checkin"
+  | "delivery"
+  // Orchestration pipeline stages
+  | "booking-retrieval"
+  | "passenger-data"
+  | "document-verification"
+  | "bag-status"
+  | "delivery-preferences"
+  | "auto-checkin"
+  | "post-checkin-comms";
+
 export type StageStatus = "waiting" | "running" | "completed" | "error" | "skipped";
 
 export interface StageState {
@@ -14,11 +30,22 @@ export interface StageState {
   error: string | null;
 }
 
+/** Pipeline mode determines which stages and layout to use */
+export type PipelineMode = "demo" | "orchestration";
+
+/** Pipeline configuration — defines the shape of a pipeline */
+export interface PipelineConfig {
+  mode: PipelineMode;
+  stageOrder: StageId[];
+  stageMeta: Record<string, StageMeta>;
+}
+
 export interface PipelineState {
   currentStage: StageId | "idle" | "done";
-  stages: Record<StageId, StageState>;
+  stages: Record<string, StageState>;
   totalStartedAt: number | null;
   totalCompletedAt: number | null;
+  config: PipelineConfig;
 }
 
 export type DeliveryChannel = "email" | "sms" | "push" | "app";
@@ -50,6 +77,11 @@ export interface PipelineContext {
   tripDays?: number;
   language?: string;
   scenario?: string;
+  // Orchestration-specific fields
+  pnr?: string;
+  bookingDate?: string;
+  loyaltyTier?: string | null;
+  deliveryPreferences?: DeliveryChannel[];
 }
 
 /** Result returned by each pipeline stage executor */

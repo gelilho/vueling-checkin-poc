@@ -7,6 +7,8 @@ export type {
   StageStatus,
   StageState,
   PipelineState,
+  PipelineMode,
+  PipelineConfig,
   DeliveryChannel,
   PipelineContext,
   StageResult,
@@ -15,3 +17,9 @@ export type {
   DeliveryStageResult,
   StageMeta,
 } from "./pipeline";
+
+export type {
+  PassengerCheckInStatus,
+  OrchestrationPassenger,
+  OrchestrationFlight,
+} from "./orchestration";

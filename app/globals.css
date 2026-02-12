@@ -106,3 +106,55 @@ body {
 .animate-fade-in {
   animation: fade-in 0.3s ease-out forwards;
 }
+
+/* Status badge pulse for processing state */
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-status-pulse {
+  animation: status-pulse 1.5s ease-in-out infinite;
+}
+
+/* Green flash on document verification pass */
+@keyframes success-flash {
+  0% { background-color: rgb(220 252 231); }
+  30% { background-color: rgb(134 239 172); }
+  100% { background-color: rgb(220 252 231); }
+}
+.animate-success-flash {
+  animation: success-flash 0.8s ease-out;
+}
+
+/* Shake on document verification fail */
+@keyframes fail-shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-6px); }
+  30% { transform: translateX(6px); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+  90% { transform: translateX(2px); }
+}
+.animate-fail-shake {
+  animation: fail-shake 0.5s ease-out;
+}
+
+/* Card selection bounce for channel selector */
+@keyframes card-select {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.92); }
+  70% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.animate-card-select {
+  animation: card-select 0.3s ease-out;
+}
+
+/* Progress bar fill for flight cards */
+@keyframes progress-fill {
+  from { width: 0%; }
+}
+.animate-progress-fill {
+  animation: progress-fill 0.8s ease-out;
+}

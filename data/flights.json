@@ -13,20 +13,6 @@
     "aircraft": "A320neo",
     "status": "On time"
   },
-  "VY8920": {
-    "flight_number": "VY8920",
-    "origin": "BCN",
-    "origin_city": "Barcelona",
-    "destination": "LHR",
-    "destination_city": "London",
-    "date": "2026-03-20",
-    "departure_time": "09:15",
-    "arrival_time": "10:50",
-    "terminal": "T1",
-    "gate": "A12",
-    "aircraft": "A321",
-    "status": "On time"
-  },
   "VY6012": {
     "flight_number": "VY6012",
     "origin": "LGW",

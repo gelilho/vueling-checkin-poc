@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
+import NavToggle from "@/components/NavToggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,9 +37,7 @@ export default function RootLayout({
               </div>
               <span className="font-semibold text-vueling-dark text-lg tracking-tight">vueling</span>
             </div>
-            <span className="text-[10px] text-vueling-gray font-semibold uppercase tracking-wider bg-gray-100 px-2 py-1 rounded">
-              4YFN 2026
-            </span>
+            <NavToggle />
           </header>
 
           {/* Main content */}

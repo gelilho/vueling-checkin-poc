@@ -29,6 +29,11 @@ export interface Passenger {
   label: string;
   description: string;
   language?: string;
+  /** Orchestration fields */
+  pnr?: string;
+  booking_date?: string;
+  loyalty_tier?: string | null;
+  delivery_preferences?: string[];
 }
 
 export interface ParsedPassport {

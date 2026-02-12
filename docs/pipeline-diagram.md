@@ -7,7 +7,7 @@ Visual documentation of the Invisible Check-In pipeline architecture.
 ```
 ┌─────────────────────┐
 │   Passenger Select   │
-│  (María/João/Smiths/ │
+│  (María/Smiths/      │
 │     Live Scan)       │
 └─────────┬───────────┘
           │
@@ -122,15 +122,6 @@ Channels ──✅──→ Scan ──✅──→ Check-In ──✅──→ 
   All          Passport     All checks     Boarding pass
   channels     valid        pass           + bag nudge
   selected     (2027)       Seat 14A       (no bag)
-```
-
-### João (Blocked — BCN → London)
-
-```
-Channels ──✅──→ Scan ──✅──→ Check-In ──❌
-  All          Passport     Passport expires in 44 days
-  channels     expiry:      UK requires 6 months validity
-  selected     2025-03-28   → AI explains the issue
 ```
 
 ### The Smiths (Family — LGW → Barcelona)
