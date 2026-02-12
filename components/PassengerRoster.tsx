@@ -9,6 +9,8 @@ export interface RosterPassenger {
   passportNumber?: string;
   checkedBag?: boolean;
   status: PassengerCheckInStatus;
+  /** True if this passenger came from the Booking flow (localStorage) */
+  fromBooking?: boolean;
 }
 
 interface PassengerRosterProps {
@@ -74,7 +76,14 @@ export default function PassengerRoster({
               </div>
 
               <div className="min-w-0">
-                <p className="text-sm font-medium text-vueling-dark truncate">{p.name}</p>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-medium text-vueling-dark truncate">{p.name}</p>
+                  {p.fromBooking && (
+                    <span className="shrink-0 text-[8px] font-bold uppercase tracking-wider bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
+                      Booking
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <StatusBadge status={p.status} />
                   {p.checkedBag === false && (

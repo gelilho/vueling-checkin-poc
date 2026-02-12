@@ -11,6 +11,7 @@ export {
   downloadSubmissionsCSV,
   clearSubmissions,
   getSubmissionCount,
+  getLatestSubmission,
 } from "./storage";
 export type { CheckInSubmission } from "./storage";
 export { pipelineLog } from "./logger";

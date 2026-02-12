@@ -22,18 +22,21 @@ const routes = routesData as RoutesMap;
 
 interface Props {
   passengerId: string;
+  /** Optional: pass the full Passenger object directly (e.g. from booking data) */
+  passengerData?: Passenger;
   onComplete: (success: boolean) => void;
   onReset: () => void;
 }
 
 export default function OrchestrationPipelineView({
   passengerId,
+  passengerData,
   onComplete,
   onReset,
 }: Props) {
   const passenger = useMemo(
-    () => allPassengers.find((p) => p.id === passengerId),
-    [passengerId]
+    () => passengerData || allPassengers.find((p) => p.id === passengerId),
+    [passengerId, passengerData]
   );
   const flight = passenger?.flight ? flights[passenger.flight] : null;
   const route = passenger?.destination ? routes[passenger.destination] : null;

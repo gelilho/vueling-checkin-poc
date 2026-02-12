@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import type { Passenger } from "@/types";
 import type { PassengerCheckInStatus } from "@/types";
+import { getLatestSubmission } from "@/lib/utils/storage";
+import type { CheckInSubmission } from "@/lib/utils/storage";
 import FlightCard from "./FlightCard";
 import PassengerRoster from "./PassengerRoster";
 import type { RosterPassenger } from "./PassengerRoster";
@@ -18,7 +20,43 @@ type RoutesMap = Record<string, { city: string }>;
 const flights = flightsData as FlightsMap;
 const routes = routesData as RoutesMap;
 const allPassengers = passengersData as Passenger[];
-const passengers = allPassengers.filter((p) => p.id !== "custom");
+const staticPassengers = allPassengers.filter((p) => p.id !== "custom");
+
+/** Convert a localStorage booking submission into a Passenger object */
+function submissionToPassenger(sub: CheckInSubmission): Passenger {
+  const channels = sub.deliveryChannels.split(";").filter(Boolean);
+  return {
+    id: `booking-${sub.timestamp}`,
+    name: sub.fullName || "Booking Passenger",
+    passport_name: (sub.fullName || "").toUpperCase(),
+    nationality: "—",
+    passport_number: sub.passportNumber || "—",
+    date_of_birth: "—",
+    gender: "—",
+    passport_expiry: sub.expiryDate || "2028-01-01",
+    issuing_country: "—",
+    flight: "VY1234",
+    origin: "BCN",
+    destination: "FCO",
+    date: "2026-03-15",
+    departure: "16:35",
+    terminal: "T1",
+    gate: "B34",
+    companion: null,
+    companion_seat: null,
+    assigned_seat: "14C",
+    checked_bag: false,
+    trip_days: 5,
+    scenario: "booking_submission",
+    label: `${sub.fullName || "Passenger"} — From Booking`,
+    description: `Submitted via ${sub.entryMethod} entry`,
+    language: "en",
+    pnr: sub.pnr || "VY-B2026X",
+    booking_date: sub.timestamp.split("T")[0],
+    loyalty_tier: null,
+    delivery_preferences: channels.length > 0 ? channels : ["email", "push"],
+  };
+}
 
 interface FlightGroup {
   flightNumber: string;
@@ -60,7 +98,26 @@ interface Props {
 }
 
 export default function OrchestrationDashboard({ onReset }: Props) {
-  const flightGroups = useMemo(() => groupByFlight(passengers), []);
+  const [bookingPassenger, setBookingPassenger] = useState<Passenger | null>(null);
+
+  // Load booking data from localStorage on mount
+  useEffect(() => {
+    const latest = getLatestSubmission();
+    if (latest && latest.fullName) {
+      setBookingPassenger(submissionToPassenger(latest));
+    }
+  }, []);
+
+  const passengers = useMemo(() => {
+    const base = [...staticPassengers];
+    if (bookingPassenger) {
+      // Inject booking passenger into the VY1234 flight (same as María)
+      base.push(bookingPassenger);
+    }
+    return base;
+  }, [bookingPassenger]);
+
+  const flightGroups = useMemo(() => groupByFlight(passengers), [passengers]);
   const [selectedFlight, setSelectedFlight] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [statuses, setStatuses] = useState<Record<string, PassengerCheckInStatus>>({});
@@ -123,6 +180,7 @@ export default function OrchestrationDashboard({ onReset }: Props) {
         passportNumber: p.passport_number,
         checkedBag: p.checked_bag,
         status: getStatus(p.id),
+        fromBooking: p.id.startsWith("booking-"),
       })),
     [selectedGroup, getStatus]
   );
@@ -187,6 +245,11 @@ export default function OrchestrationDashboard({ onReset }: Props) {
         {processingId && selectedGroup && (
           <OrchestrationPipelineView
             passengerId={processingId}
+            passengerData={
+              bookingPassenger && processingId === bookingPassenger.id
+                ? bookingPassenger
+                : undefined
+            }
             onComplete={(success) =>
               handleBatchNext(processingId, success)
             }

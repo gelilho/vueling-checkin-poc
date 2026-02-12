@@ -95,3 +95,10 @@ export function clearSubmissions(): void {
 export function getSubmissionCount(): number {
   return getSubmissions().length;
 }
+
+/** Get the latest submission (most recent booking) */
+export function getLatestSubmission(): CheckInSubmission | null {
+  const all = getSubmissions();
+  if (all.length === 0) return null;
+  return all[all.length - 1];
+}
