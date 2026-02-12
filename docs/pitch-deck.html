@@ -218,6 +218,32 @@
       color: var(--dark);
     }
 
+    /* ── Privacy banner ── */
+    .privacy-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      margin-top: 16px;
+    }
+    .privacy-icon {
+      width: 28px; height: 28px;
+      background: rgba(34,197,94,0.15);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .privacy-text { flex: 1; }
+    .privacy-text strong { font-size: 11px; color: #22c55e; display: block; margin-bottom: 2px; }
+    .privacy-text span { font-size: 10px; color: #9ca3af; line-height: 1.4; }
+    .s2 .privacy-banner { background: #f0fdf4; border-color: #bbf7d0; }
+    .s2 .privacy-text strong { color: #15803d; }
+    .s2 .privacy-text span { color: var(--gray); }
+
     /* ── Print ── */
     @media print {
       body { background: #fff; overflow: visible; height: auto; }
@@ -297,6 +323,14 @@
           <div class="kpi"><div class="val">~20-30%</div><div class="unit">fewer cases</div><div class="label">Support case reduction</div></div>
           <div class="kpi"><div class="val">+&euro;22M</div><div class="unit">/ year</div><div class="label">Ancillary revenue (bag upsell)</div></div>
           <div class="kpi"><div class="val">&lt;15s</div><div class="unit">8 stages</div><div class="label">Full pipeline execution</div></div>
+        </div>
+
+        <div class="privacy-banner">
+          <div class="privacy-icon">&#x1f512;</div>
+          <div class="privacy-text">
+            <strong>Privacy-First by Design</strong>
+            <span>Document images are never stored. The AI extracts only structured data (name, number, expiry) and discards the image immediately. All personal data is processed securely and held only for the duration of the check-in flow.</span>
+          </div>
         </div>
       </div>
 

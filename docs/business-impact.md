@@ -133,6 +133,33 @@ The check-in confirmation is a high-attention moment. AI-powered bag upsells her
 
 ---
 
+## Privacy-First by Design
+
+Privacy is at the core of the customer experience. The pipeline is built so that **document images are never stored**.
+
+### How It Works
+
+1. **Image capture**: The passenger scans their passport, DNI, or ID card via camera or upload.
+2. **AI extraction**: Google Gemini 2.0 Vision reads the document and extracts only structured data — full name, document number, nationality, date of birth, expiry date.
+3. **Image discarded**: The original image is **immediately discarded** after extraction. It is never saved to disk, database, or cloud storage.
+4. **Data used, then purged**: The extracted text data is used only for the duration of the check-in pipeline, then purged after processing.
+
+### Privacy Guarantees
+
+| Principle | Implementation |
+|-----------|----------------|
+| Zero image storage | Document photos are processed in-memory and never persisted |
+| No biometric retention | No facial data, fingerprints, or biometric templates are stored |
+| Data minimization | Only the fields required for check-in are extracted |
+| GDPR-ready architecture | Designed for compliance with EU data protection regulations |
+| Transparent processing | The passenger can see exactly what data was extracted (Gemini JSON response visible in UI) |
+
+### Why This Matters
+
+Airlines handle millions of identity documents. A single breach of stored passport images would be catastrophic. By extracting only text data and discarding images immediately, the system eliminates the highest-risk data category entirely. This is not just good engineering — it is a **competitive advantage** in an industry where trust is everything.
+
+---
+
 ## IAG Group Scalability
 
 The pipeline is **airline-agnostic by design**. The 8-stage orchestration engine, AI document verification, and smart nudge system are fully configurable. Any airline within the IAG group can adopt the same pipeline with minimal integration work.
