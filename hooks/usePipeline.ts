@@ -16,7 +16,7 @@ import {
   executeCheckin,
   executeDelivery,
 } from "@/lib/pipeline";
-import { delay } from "@/lib/utils";
+import { delay, pipelineLog } from "@/lib/utils";
 import { INTER_STAGE_DELAY_MS, DEMO_PIPELINE_CONFIG } from "@/constants";
 import type {
   DeliveryChannel,
@@ -92,15 +92,24 @@ export function usePipeline(
     if (runningRef.current) return;
     runningRef.current = true;
 
+    const meta = DEMO_PIPELINE_CONFIG.stageMeta;
+    const pipelineStartTime = Date.now();
+
+    pipelineLog.pipelineStart("Demo (4-stage)", buildContext().name);
     dispatch({ type: "START_PIPELINE" });
 
     // --- Stage 1: Channel Preferences ---
+    pipelineLog.stageStart("channels", meta.channels.title);
+    const t1 = Date.now();
     dispatch({ type: "START_STAGE", stage: "channels" });
     const channelResult = await executeChannels(channels);
     dispatch({ type: "COMPLETE_STAGE", stage: "channels", ...channelResult });
+    pipelineLog.stageDone("channels", meta.channels.title, Date.now() - t1, channelResult.data);
     await delay(INTER_STAGE_DELAY_MS);
 
     // --- Stage 2: Identity Scan ---
+    pipelineLog.stageStart("scan", meta.scan.title);
+    const t2 = Date.now();
     dispatch({ type: "START_STAGE", stage: "scan" });
 
     if (isLiveScan) {
@@ -111,24 +120,31 @@ export function usePipeline(
         });
         onLiveScanDataReceived?.(scanResult.parsedData);
         dispatch({ type: "COMPLETE_STAGE", stage: "scan", ...scanResult });
+        pipelineLog.stageDone("scan", meta.scan.title, Date.now() - t2, scanResult.data);
       } catch (err) {
+        const errMsg = err instanceof Error ? err.message : "Scan failed";
         dispatch({
           type: "ERROR_STAGE",
           stage: "scan",
-          error: err instanceof Error ? err.message : "Scan failed",
+          error: errMsg,
         });
+        pipelineLog.stageError("scan", meta.scan.title, errMsg);
         runningRef.current = false;
         dispatch({ type: "COMPLETE_PIPELINE" });
+        pipelineLog.pipelineComplete(Date.now() - pipelineStartTime, 2);
         return;
       }
     } else {
       const ctx = buildContext();
       const scanResult = await executeScanMocked(ctx);
       dispatch({ type: "COMPLETE_STAGE", stage: "scan", ...scanResult });
+      pipelineLog.stageDone("scan", meta.scan.title, Date.now() - t2, scanResult.data);
     }
     await delay(INTER_STAGE_DELAY_MS);
 
     // --- Stage 3: Automatic Check-In ---
+    pipelineLog.stageStart("checkin", meta.checkin.title);
+    const t3 = Date.now();
     dispatch({ type: "START_STAGE", stage: "checkin" });
     const ctx = buildContext();
     const checkinResult = await executeCheckin(ctx);
@@ -137,6 +153,7 @@ export function usePipeline(
       setCheckinValid(true);
       setConfirmationMessage(checkinResult.confirmationMessage || "");
       dispatch({ type: "COMPLETE_STAGE", stage: "checkin", ...checkinResult });
+      pipelineLog.stageDone("checkin", meta.checkin.title, Date.now() - t3, checkinResult.data);
     } else {
       setCheckinValid(false);
       setIssueMessage(checkinResult.issueMessage || "");
@@ -146,24 +163,30 @@ export function usePipeline(
         error: checkinResult.summary,
         data: checkinResult.data,
       });
+      pipelineLog.stageError("checkin", meta.checkin.title, checkinResult.summary);
     }
     await delay(INTER_STAGE_DELAY_MS);
 
     // --- Stage 4: Delivery + Extras ---
     if (checkinResult.valid) {
+      pipelineLog.stageStart("delivery", meta.delivery.title);
+      const t4 = Date.now();
       dispatch({ type: "START_STAGE", stage: "delivery" });
       const deliveryResult = await executeDelivery(ctx, channels);
       setBagNudge(deliveryResult.bagNudge);
       dispatch({ type: "COMPLETE_STAGE", stage: "delivery", ...deliveryResult });
+      pipelineLog.stageDone("delivery", meta.delivery.title, Date.now() - t4, deliveryResult.data);
     } else {
       dispatch({
         type: "SKIP_STAGE",
         stage: "delivery",
         reason: "Check-in blocked — cannot deliver boarding pass",
       });
+      pipelineLog.stageSkip("delivery", meta.delivery.title, "Check-in blocked");
     }
 
     dispatch({ type: "COMPLETE_PIPELINE" });
+    pipelineLog.pipelineComplete(Date.now() - pipelineStartTime, DEMO_PIPELINE_CONFIG.stageOrder.length);
     runningRef.current = false;
   }, [channels, isLiveScan, buildContext, onLiveScanDataReceived]);
 

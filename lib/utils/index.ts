@@ -13,3 +13,4 @@ export {
   getSubmissionCount,
 } from "./storage";
 export type { CheckInSubmission } from "./storage";
+export { pipelineLog } from "./logger";

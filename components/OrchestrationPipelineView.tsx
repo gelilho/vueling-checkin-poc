@@ -110,6 +110,7 @@ export default function OrchestrationPipelineView({
   if (!passenger || !flight) return null;
 
   const { stageOrder, stageMeta } = ORCH_PIPELINE_CONFIG;
+  const pipelineDone = state.currentStage === "done";
 
   return (
     <div className="animate-fade-in">
@@ -143,6 +144,7 @@ export default function OrchestrationPipelineView({
               status={stageState.status}
               duration={getStageDuration(stageId)}
               isLast={idx === stageOrder.length - 1}
+              forceExpand={pipelineDone}
             >
               {/* Data reveal for each stage */}
               {stageState.data && (
@@ -201,23 +203,35 @@ export default function OrchestrationPipelineView({
       </div>
 
       {/* Completion */}
-      {state.currentStage === "done" && totalDuration != null && (
-        <div className="mt-4 text-center animate-slide-up">
-          <p className="text-sm font-semibold text-vueling-dark">
-            Total pipeline time:{" "}
-            <span className="font-mono text-vueling-green">
-              {formatDuration(totalDuration)}
-            </span>
-          </p>
-          <p className="text-xs text-vueling-gray mt-1">
-            Zero passenger action required
-          </p>
-          <button
-            onClick={onReset}
-            className="mt-3 text-xs font-semibold text-vueling-dark border border-vueling-dark/20 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            ← Back to roster
-          </button>
+      {pipelineDone && totalDuration != null && (
+        <div className="mt-6 animate-slide-up">
+          {/* Summary bar */}
+          <div className="flex items-center justify-between p-3 rounded-xl bg-vueling-green/5 border border-vueling-green/20 mb-4">
+            <div>
+              <p className="text-sm font-semibold text-vueling-dark">
+                ✓ Pipeline complete
+              </p>
+              <p className="text-xs text-vueling-gray mt-0.5">
+                Zero passenger action required
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-lg font-mono font-bold text-vueling-green">
+                {formatDuration(totalDuration)}
+              </p>
+              <p className="text-[10px] text-vueling-gray">total time</p>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2">
+            <button
+              onClick={onReset}
+              className="flex-1 py-3 text-sm font-semibold text-vueling-dark bg-vueling-yellow rounded-xl active:scale-[0.97] transition-transform"
+            >
+              ← Back to roster
+            </button>
+          </div>
         </div>
       )}
     </div>

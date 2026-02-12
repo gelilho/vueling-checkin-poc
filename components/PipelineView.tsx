@@ -145,6 +145,7 @@ export default function PipelineView({ passengerId, onReset }: PipelineViewProps
           status={state.stages[stageId].status}
           duration={getStageDuration(stageId)}
           isLast={i === STAGE_ORDER.length - 1}
+          forceExpand={state.currentStage === "done"}
         >
           {/* Stage 1: Channels */}
           {stageId === "channels" && (
@@ -276,22 +277,34 @@ export default function PipelineView({ passengerId, onReset }: PipelineViewProps
 
       {/* Pipeline complete */}
       {state.currentStage === "done" && totalDuration != null && (
-        <div className="mt-4 text-center animate-slide-up" style={{ opacity: 0, animationDelay: "300ms" }}>
-          <p className="text-xs text-vueling-gray">
-            Total pipeline time:{" "}
-            <span className="font-mono font-semibold text-vueling-dark">
-              {formatDuration(totalDuration)}
-            </span>
-          </p>
-          <p className="text-[10px] text-vueling-gray mt-0.5">
-            Zero passenger action required
-          </p>
-          <button
-            onClick={onReset}
-            className="mt-4 px-6 py-2.5 bg-vueling-yellow text-vueling-dark font-semibold rounded-xl text-sm active:scale-[0.97] transition-transform"
-          >
-            Run another scenario
-          </button>
+        <div className="mt-6 animate-slide-up" style={{ animationDelay: "300ms" }}>
+          {/* Summary bar */}
+          <div className="flex items-center justify-between p-3 rounded-xl bg-vueling-green/5 border border-vueling-green/20 mb-4">
+            <div>
+              <p className="text-sm font-semibold text-vueling-dark">
+                ✓ Pipeline complete
+              </p>
+              <p className="text-xs text-vueling-gray mt-0.5">
+                Zero passenger action required
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-lg font-mono font-bold text-vueling-green">
+                {formatDuration(totalDuration)}
+              </p>
+              <p className="text-[10px] text-vueling-gray">total time</p>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2">
+            <button
+              onClick={onReset}
+              className="flex-1 py-3 text-sm font-semibold text-vueling-dark bg-vueling-yellow rounded-xl active:scale-[0.97] transition-transform"
+            >
+              ← Run another scenario
+            </button>
+          </div>
         </div>
       )}
 

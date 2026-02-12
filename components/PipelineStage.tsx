@@ -9,6 +9,8 @@ interface PipelineStageProps {
   status: StageStatus;
   duration?: number | null;
   isLast?: boolean;
+  /** When true, keep the stage fully expanded even after completion */
+  forceExpand?: boolean;
   children?: React.ReactNode;
 }
 
@@ -85,9 +87,10 @@ export default function PipelineStage({
   status,
   duration,
   isLast,
+  forceExpand,
   children,
 }: PipelineStageProps) {
-  const isExpanded = status === "running" || status === "error";
+  const isExpanded = forceExpand || status === "running" || status === "error";
   const showChildren = status !== "waiting" && status !== "skipped";
 
   return (
@@ -148,17 +151,14 @@ export default function PipelineStage({
         {/* Expanded content */}
         {showChildren && children && (
           <div
-            className={`mt-3 overflow-hidden transition-all duration-400 ${
-              isExpanded ? "max-h-[600px] opacity-100" : "max-h-[200px] opacity-100"
+            className={`mt-3 transition-all duration-400 ${
+              isExpanded
+                ? "max-h-none opacity-100"
+                : "max-h-[200px] opacity-100 overflow-hidden"
             }`}
           >
             {children}
           </div>
-        )}
-
-        {/* Completed summary (when collapsed) */}
-        {status === "completed" && !isExpanded && (
-          <p className="text-xs text-vueling-gray mt-1">{/* summary shown via children */}</p>
         )}
 
         {/* Skipped */}
