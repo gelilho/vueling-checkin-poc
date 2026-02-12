@@ -8,8 +8,6 @@ export interface RouteInfo {
   country: string;
   schengen: boolean;
   passport_validity_months: number;
-  visa_free: string[];
-  visa_required: string[];
   etias_required_from: string[];
   evisitor_required?: string[];
   security_avg_minutes: number;

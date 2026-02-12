@@ -102,13 +102,7 @@ export default function OrchestrationPipelineView({
     }
   }, [state.currentStage, runOrchestration]);
 
-  // Notify parent on completion
-  useEffect(() => {
-    if (state.currentStage === "done") {
-      const timer = setTimeout(() => onComplete(checkinValid), 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [state.currentStage, checkinValid, onComplete]);
+  // No auto-advance: user clicks "Back to roster" to return and pick next passenger
 
   if (!passenger || !flight) return null;
 
@@ -229,7 +223,10 @@ export default function OrchestrationPipelineView({
           {/* Actions */}
           <div className="flex gap-2">
             <button
-              onClick={onReset}
+              onClick={() => {
+                onComplete(checkinValid);
+                onReset();
+              }}
               className="flex-1 py-3 text-sm font-semibold text-vueling-dark bg-vueling-yellow rounded-xl active:scale-[0.97] transition-transform"
             >
               ← Back to roster

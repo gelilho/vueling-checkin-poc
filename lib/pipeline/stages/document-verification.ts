@@ -1,7 +1,7 @@
 /**
  * Document verification stage executor.
- * Calls the /api/validate endpoint to check passport validity,
- * visa/entry requirements, and name matching.
+ * Calls the /api/validate endpoint to check passport validity
+ * and name matching.
  */
 
 import type { PipelineContext, CheckinStageResult } from "@/types";
@@ -39,9 +39,6 @@ export async function executeDocumentVerification(
       "Passport validity": hasIssueType(valData.issues, "passport_expiry")
         ? "\u26a0\ufe0f Issue"
         : "\u2713 Valid",
-      "Visa / entry requirements": hasVisaIssue(valData.issues)
-        ? "\u26a0\ufe0f Check required"
-        : "\u2713 Clear",
       "Name verification": hasIssueType(valData.issues, "name_mismatch")
         ? "\u26a0\ufe0f Mismatch"
         : "\u2713 Match",
@@ -74,11 +71,3 @@ function hasIssueType(issues: ValidationIssue[], type: string): boolean {
   return issues.some((i) => i.type === type);
 }
 
-function hasVisaIssue(issues: ValidationIssue[]): boolean {
-  return issues.some(
-    (i) =>
-      i.type === "visa_required" ||
-      i.type === "etias_required" ||
-      i.type === "evisitor_required"
-  );
-}

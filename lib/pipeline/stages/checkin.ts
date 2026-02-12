@@ -32,9 +32,6 @@ export async function executeCheckin(
       "Passport validity": hasIssueType(valData.issues, "passport_expiry")
         ? "⚠️ Issue detected"
         : "✓ Valid",
-      "Visa / entry requirements": hasVisaIssue(valData.issues)
-        ? "⚠️ Check required"
-        : "✓ Clear",
       "Name verification": hasIssueType(valData.issues, "name_mismatch")
         ? "⚠️ Mismatch"
         : "✓ Match confirmed",
@@ -73,15 +70,6 @@ interface Issue {
 
 function hasIssueType(issues: Issue[], type: string): boolean {
   return issues.some((i) => i.type === type);
-}
-
-function hasVisaIssue(issues: Issue[]): boolean {
-  return issues.some(
-    (i) =>
-      i.type === "visa_required" ||
-      i.type === "etias_required" ||
-      i.type === "evisitor_required"
-  );
 }
 
 function formatSeatAssignment(ctx: PipelineContext): string {

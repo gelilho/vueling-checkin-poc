@@ -10,8 +10,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: "/onboarding", label: "Booking" },
-  { href: "/", label: "Pipeline" },
-  { href: "/demo", label: "Demo" },
+  { href: "/", label: "Pipeline Demo" },
   { href: "/impact", label: "Impact" },
 ];
 

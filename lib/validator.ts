@@ -37,16 +37,7 @@ export function validatePassenger(
     });
   }
 
-  // 2. Visa check
-  if (route.visa_required.includes(nationality)) {
-    issues.push({
-      type: "visa_required",
-      severity: "error",
-      details: `${nationality} nationals require a visa to enter ${route.country}. Please ensure you have a valid visa before traveling.`,
-    });
-  }
-
-  // 3. ETIAS check
+  // 2. ETIAS check
   if (route.etias_required_from.includes(nationality)) {
     issues.push({
       type: "etias_required",
@@ -55,7 +46,7 @@ export function validatePassenger(
     });
   }
 
-  // 4. eVisitor check (UK specific)
+  // 3. eVisitor check (UK specific)
   if (route.evisitor_required?.includes(nationality)) {
     issues.push({
       type: "evisitor_required",
@@ -64,7 +55,7 @@ export function validatePassenger(
     });
   }
 
-  // 5. Name matching
+  // 4. Name matching
   const normalizedPassport = passportName.toUpperCase().replace(/[^A-Z ]/g, "");
   const normalizedBooking = bookingName.toUpperCase().replace(/[^A-Z ]/g, "");
 

@@ -8,8 +8,10 @@ import type { CheckInSubmission } from "@/lib/utils/storage";
 import {
   getPassengerPipelineStatus,
   getPipelineExecutionCount,
+  getPipelineExecutions,
   downloadPipelineExecutionsCSV,
 } from "@/lib/utils/pipeline-log-storage";
+import type { PipelineExecutionLog } from "@/lib/utils/pipeline-log-storage";
 import FlightCard from "./FlightCard";
 import PassengerRoster from "./PassengerRoster";
 import type { RosterPassenger } from "./PassengerRoster";
@@ -127,6 +129,7 @@ export default function OrchestrationDashboard({ onReset }: Props) {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [statuses, setStatuses] = useState<Record<string, PassengerCheckInStatus>>({});
   const [executionCount, setExecutionCount] = useState(0);
+  const [executions, setExecutions] = useState<PipelineExecutionLog[]>([]);
 
   // Load persisted pipeline statuses from localStorage on mount
   useEffect(() => {
@@ -141,6 +144,7 @@ export default function OrchestrationDashboard({ onReset }: Props) {
       setStatuses((prev) => ({ ...loaded, ...prev }));
     }
     setExecutionCount(getPipelineExecutionCount());
+    setExecutions(getPipelineExecutions());
   }, [flightGroups]);
 
   const selectedGroup = flightGroups.find(
@@ -163,8 +167,11 @@ export default function OrchestrationDashboard({ onReset }: Props) {
       [passengerId]: success ? "checked-in" : "blocked",
     }));
     setProcessingId(null);
-    // Refresh execution count after pipeline saves
-    setTimeout(() => setExecutionCount(getPipelineExecutionCount()), 100);
+    // Refresh execution data after pipeline saves
+    setTimeout(() => {
+      setExecutionCount(getPipelineExecutionCount());
+      setExecutions(getPipelineExecutions());
+    }, 100);
   }, []);
 
   const handleProcessAll = useCallback(() => {
@@ -177,23 +184,7 @@ export default function OrchestrationDashboard({ onReset }: Props) {
     }
   }, [selectedGroup, getStatus, handleProcess]);
 
-  // Auto-advance to next passenger when one completes (batch mode)
-  const handleBatchNext = useCallback(
-    (completedId: string, success: boolean) => {
-      handleComplete(completedId, success);
-      if (selectedGroup) {
-        const remaining = selectedGroup.passengers.find(
-          (p) =>
-            p.id !== completedId &&
-            (getStatus(p.id) === "ready" || getStatus(p.id) === "pending")
-        );
-        if (remaining) {
-          setTimeout(() => handleProcess(remaining.id), 600);
-        }
-      }
-    },
-    [selectedGroup, getStatus, handleComplete, handleProcess]
-  );
+  // No auto-advance — each passenger stops independently after pipeline completes
 
   const rosterPassengers: RosterPassenger[] = useMemo(
     () =>
@@ -303,13 +294,97 @@ export default function OrchestrationDashboard({ onReset }: Props) {
                 : undefined
             }
             onComplete={(success) =>
-              handleBatchNext(processingId, success)
+              handleComplete(processingId, success)
             }
             onReset={() => setProcessingId(null)}
           />
         )}
 
-        {/* Footer link to demo */}
+        {/* CSV Data Visor — pipeline execution log */}
+        {executions.length > 0 && !processingId && (
+          <div className="mt-6 animate-fade-in">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs font-bold text-vueling-dark uppercase tracking-wider">
+                Pipeline Execution Log
+              </h3>
+              <button
+                onClick={() => downloadPipelineExecutionsCSV()}
+                className="text-[10px] font-semibold px-2 py-1 rounded-md bg-vueling-dark text-white
+                  hover:bg-vueling-dark/80 transition-all flex items-center gap-1"
+              >
+                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                CSV
+              </button>
+            </div>
+
+            <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+              {/* Header */}
+              <div className="grid grid-cols-[1fr_70px_70px_60px] gap-1 px-3 py-2 bg-gray-50 border-b border-gray-200">
+                <span className="text-[9px] font-bold text-vueling-gray uppercase">Passenger</span>
+                <span className="text-[9px] font-bold text-vueling-gray uppercase">Flight</span>
+                <span className="text-[9px] font-bold text-vueling-gray uppercase">Duration</span>
+                <span className="text-[9px] font-bold text-vueling-gray uppercase text-right">Status</span>
+              </div>
+
+              {/* Rows */}
+              {executions.map((exec) => (
+                <details key={exec.id} className="group border-b border-gray-100 last:border-0">
+                  <summary className="grid grid-cols-[1fr_70px_70px_60px] gap-1 px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors items-center">
+                    <span className="text-[11px] font-medium text-vueling-dark truncate">
+                      {exec.passengerName}
+                    </span>
+                    <span className="text-[10px] text-vueling-gray font-mono">
+                      {exec.flight}
+                    </span>
+                    <span className="text-[10px] text-vueling-gray font-mono">
+                      {(exec.totalDurationMs / 1000).toFixed(1)}s
+                    </span>
+                    <span className={`text-[9px] font-bold text-right ${
+                      exec.result === "checked-in" ? "text-vueling-green" : "text-red-500"
+                    }`}>
+                      {exec.result === "checked-in" ? "✓ Done" : "✗ Blocked"}
+                    </span>
+                  </summary>
+
+                  {/* Stage details */}
+                  <div className="px-3 pb-2 pt-1 bg-gray-50/50">
+                    <div className="text-[9px] text-vueling-gray mb-1 font-mono">
+                      {new Date(exec.startedAt).toLocaleString()}
+                    </div>
+                    {exec.stages.map((stage) => (
+                      <div
+                        key={stage.stageId}
+                        className="flex items-center gap-2 py-0.5"
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                          stage.status === "completed"
+                            ? "bg-vueling-green"
+                            : stage.status === "error"
+                              ? "bg-red-400"
+                              : "bg-gray-300"
+                        }`} />
+                        <span className="text-[10px] text-vueling-dark flex-1 truncate">
+                          {stage.stageTitle}
+                        </span>
+                        <span className="text-[9px] text-vueling-gray font-mono">
+                          {stage.durationMs}ms
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              ))}
+            </div>
+
+            <p className="text-[9px] text-vueling-gray mt-1.5 text-center">
+              {executions.length} execution{executions.length !== 1 ? "s" : ""} stored · All data persisted locally
+            </p>
+          </div>
+        )}
+
+        {/* Footer link */}
         {onReset && (
           <div className="text-center mt-8">
             <button

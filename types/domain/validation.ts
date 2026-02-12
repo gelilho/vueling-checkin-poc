@@ -4,7 +4,6 @@
 
 export type ValidationIssueType =
   | "passport_expiry"
-  | "visa_required"
   | "etias_required"
   | "evisitor_required"
   | "name_mismatch";
