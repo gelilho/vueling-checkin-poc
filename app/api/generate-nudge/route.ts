@@ -60,11 +60,22 @@ export async function POST(req: NextRequest) {
 
     const message = await generateText(prompt);
 
-    return NextResponse.json({ message });
+    return NextResponse.json({
+      message,
+      geminiResponse: {
+        model: "gemini-2.0-flash",
+        type,
+        prompt,
+        response: message,
+      },
+    });
   } catch (error) {
     console.error("Nudge generation error:", error);
     return NextResponse.json(
-      { message: "Welcome aboard! You're all set for your flight." },
+      {
+        message: "Welcome aboard! You're all set for your flight.",
+        geminiResponse: null,
+      },
       { status: 200 }
     );
   }

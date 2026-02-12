@@ -2,6 +2,7 @@
  * Auto check-in stage executor.
  * Assigns seats and generates AI confirmation if documents are valid.
  * Blocks check-in if document verification failed.
+ * Returns `geminiResponse` from the confirmation call.
  */
 
 import type { PipelineContext, CheckinStageResult } from "@/types";
@@ -11,7 +12,7 @@ import { withMinDelay } from "@/lib/utils";
 export async function executeAutoCheckin(
   ctx: PipelineContext,
   docValid: boolean
-): Promise<CheckinStageResult> {
+): Promise<CheckinStageResult & { geminiResponse?: unknown }> {
   return withMinDelay(async () => {
     const data: Record<string, string> = {
       "Check-in window": `Flight ${ctx.flight} \u2014 within 48h \u2713`,
@@ -34,13 +35,14 @@ export async function executeAutoCheckin(
     data["Status"] = "\u2713 Automatically checked in";
 
     // Generate AI confirmation message
-    const confirmationMessage = await fetchConfirmationMessage(ctx);
+    const { message, geminiResponse } = await fetchConfirmationMessage(ctx);
 
     return {
       data,
       summary: `Checked in \u2014 Seat ${ctx.seat}`,
       valid: true,
-      confirmationMessage,
+      confirmationMessage: message,
+      geminiResponse,
     };
   }, ORCH_STAGE_DURATIONS["auto-checkin"]);
 }
@@ -56,7 +58,7 @@ function formatSeatAssignment(ctx: PipelineContext): string {
 
 async function fetchConfirmationMessage(
   ctx: PipelineContext
-): Promise<string> {
+): Promise<{ message: string; geminiResponse: unknown }> {
   try {
     const res = await fetch(API_ENDPOINTS.GENERATE_NUDGE, {
       method: "POST",
@@ -76,8 +78,14 @@ async function fetchConfirmationMessage(
       }),
     });
     const data = await res.json();
-    return data.message as string;
+    return {
+      message: data.message as string,
+      geminiResponse: data.geminiResponse || null,
+    };
   } catch {
-    return `You're checked in for ${ctx.flight}. Seat ${ctx.seat}.`;
+    return {
+      message: `You're checked in for ${ctx.flight}. Seat ${ctx.seat}.`,
+      geminiResponse: null,
+    };
   }
 }

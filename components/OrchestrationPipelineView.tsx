@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Passenger, DeliveryChannel } from "@/types";
 import { useOrchestrationPipeline } from "@/hooks/useOrchestrationPipeline";
 import { ORCH_PIPELINE_CONFIG } from "@/constants";
@@ -19,6 +19,42 @@ type RoutesMap = Record<string, { city: string }>;
 const allPassengers = passengersData as Passenger[];
 const flights = flightsData as FlightsMap;
 const routes = routesData as RoutesMap;
+
+/* ------------------------------------------------------------------ */
+/*  Collapsible Gemini JSON Response Block                             */
+/* ------------------------------------------------------------------ */
+
+function GeminiResponseBlock({ data, label }: { data: unknown; label?: string }) {
+  const [open, setOpen] = useState(false);
+  if (!data) return null;
+
+  return (
+    <div className="mt-2 rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center gap-2 px-2.5 py-1.5 text-left hover:bg-gray-100 transition-colors"
+      >
+        <span className="text-[9px] font-mono font-bold bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">
+          Gemini 2.0
+        </span>
+        <span className="text-[10px] text-gray-500 flex-1">
+          {label || "JSON Response"}
+        </span>
+        <svg
+          className={`w-3 h-3 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
+          fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <pre className="px-2.5 pb-2.5 text-[9px] font-mono text-gray-600 leading-relaxed overflow-x-auto max-h-[300px] overflow-y-auto">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      )}
+    </div>
+  );
+}
 
 interface Props {
   passengerId: string;
@@ -92,6 +128,7 @@ export default function OrchestrationPipelineView({
     nudgeMessage,
     nudgeAiGenerated,
     checkinValid,
+    geminiResponses,
     runOrchestration,
     getStageDuration,
     totalDuration,
@@ -167,6 +204,9 @@ export default function OrchestrationPipelineView({
                   <p className="text-xs text-red-700">{issueMessage}</p>
                 </div>
               )}
+              {stageId === "auto-checkin" && !!geminiResponses["auto-checkin"] && (
+                <GeminiResponseBlock data={geminiResponses["auto-checkin"]} label="Check-in confirmation prompt + response" />
+              )}
 
               {/* Post check-in: boarding pass */}
               {stageId === "post-checkin-comms" && stageState.status === "completed" && (
@@ -222,6 +262,9 @@ export default function OrchestrationPipelineView({
                     }
                   </p>
                 </div>
+              )}
+              {stageId === "ai-push-nudge" && !!geminiResponses["ai-push-nudge"] && (
+                <GeminiResponseBlock data={geminiResponses["ai-push-nudge"]} label="AI nudge prompt + response" />
               )}
             </PipelineStage>
           );

@@ -5,6 +5,7 @@
  * if the AI endpoint is unavailable.
  *
  * All content produced by this stage is clearly flagged as AI-generated.
+ * The raw Gemini response is always returned as `geminiResponse`.
  */
 
 import type { PipelineContext, StageResult } from "@/types";
@@ -14,6 +15,7 @@ import { withMinDelay } from "@/lib/utils";
 export interface AiNudgeStageResult extends StageResult {
   nudgeMessage: string;
   aiGenerated: boolean;
+  geminiResponse: unknown;
 }
 
 export async function executeAiPushNudge(
@@ -32,6 +34,7 @@ export async function executeAiPushNudge(
 
       let nudgeMessage: string;
       let aiGenerated = false;
+      let geminiResponse: unknown = null;
 
       try {
         const res = await fetch(API_ENDPOINTS.GENERATE_NUDGE, {
@@ -48,6 +51,7 @@ export async function executeAiPushNudge(
           }),
         });
         const result = await res.json();
+        geminiResponse = result.geminiResponse || null;
         if (result.message && typeof result.message === "string") {
           nudgeMessage = result.message;
           aiGenerated = true;
@@ -70,6 +74,7 @@ export async function executeAiPushNudge(
         summary: aiGenerated ? "AI issue nudge generated ✓" : "Fallback issue nudge ready ✓",
         nudgeMessage,
         aiGenerated,
+        geminiResponse,
       };
     }
 
@@ -85,6 +90,7 @@ export async function executeAiPushNudge(
 
     let nudgeMessage: string;
     let aiGenerated = false;
+    let geminiResponse: unknown = null;
 
     try {
       const res = await fetch(API_ENDPOINTS.GENERATE_NUDGE, {
@@ -101,6 +107,7 @@ export async function executeAiPushNudge(
         }),
       });
       const result = await res.json();
+      geminiResponse = result.geminiResponse || null;
       if (result.message && typeof result.message === "string") {
         nudgeMessage = result.message;
         aiGenerated = true;
@@ -124,6 +131,7 @@ export async function executeAiPushNudge(
       summary: aiGenerated ? "AI nudge generated ✓" : "Fallback nudge ready ✓",
       nudgeMessage,
       aiGenerated,
+      geminiResponse,
     };
   }, ORCH_STAGE_DURATIONS["ai-push-nudge"]);
 }

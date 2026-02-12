@@ -31,6 +31,9 @@ import type {
 } from "@/types";
 import type { PipelineAction } from "@/lib/pipeline";
 
+/** Gemini responses keyed by stage ID */
+export type GeminiResponses = Record<string, unknown>;
+
 export interface UseOrchestrationReturn {
   state: PipelineState;
   confirmationMessage: string;
@@ -39,6 +42,7 @@ export interface UseOrchestrationReturn {
   nudgeMessage: string;
   nudgeAiGenerated: boolean;
   checkinValid: boolean;
+  geminiResponses: GeminiResponses;
   runOrchestration: () => Promise<void>;
   dispatch: React.Dispatch<PipelineAction>;
   getStageDuration: (stage: StageId) => number | null;
@@ -58,6 +62,7 @@ export function useOrchestrationPipeline(
   const [nudgeMessage, setNudgeMessage] = useState("");
   const [nudgeAiGenerated, setNudgeAiGenerated] = useState(false);
   const [checkinValid, setCheckinValid] = useState(true);
+  const [geminiResponses, setGeminiResponses] = useState<GeminiResponses>({});
   const runningRef = useRef(false);
 
   const getStageDuration = useCallback(
@@ -166,7 +171,10 @@ export function useOrchestrationPipeline(
     if (docsValid) {
       pipelineLog.stageStart("auto-checkin", meta["auto-checkin"].title);
       dispatch({ type: "START_STAGE", stage: "auto-checkin" });
-      const checkinResult: CheckinStageResult = await executeAutoCheckin(ctx, true);
+      const checkinResult = await executeAutoCheckin(ctx, true);
+      if (checkinResult.geminiResponse) {
+        setGeminiResponses((prev) => ({ ...prev, "auto-checkin": checkinResult.geminiResponse }));
+      }
 
       if (checkinResult.valid) {
         autoCheckinSucceeded = true;
@@ -236,6 +244,9 @@ export function useOrchestrationPipeline(
     );
     setNudgeMessage(nudgeResult.nudgeMessage);
     setNudgeAiGenerated(nudgeResult.aiGenerated);
+    if (nudgeResult.geminiResponse) {
+      setGeminiResponses((prev) => ({ ...prev, "ai-push-nudge": nudgeResult.geminiResponse }));
+    }
     dispatch({ type: "COMPLETE_STAGE", stage: "ai-push-nudge", ...nudgeResult });
     pipelineLog.stageDone("ai-push-nudge", meta["ai-push-nudge"].title, Date.now() - t8, nudgeResult.data);
     stageLogs.push({ stageId: "ai-push-nudge", stageTitle: meta["ai-push-nudge"].title, status: "completed", startedAt: t8ISO, completedAt: new Date().toISOString(), durationMs: Date.now() - t8, data: nudgeResult.data || {} });
@@ -269,6 +280,7 @@ export function useOrchestrationPipeline(
     nudgeMessage,
     nudgeAiGenerated,
     checkinValid,
+    geminiResponses,
     runOrchestration,
     dispatch,
     getStageDuration,
