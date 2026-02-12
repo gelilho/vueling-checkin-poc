@@ -115,23 +115,39 @@ export function useOrchestrationPipeline(
     const t3ISO = new Date().toISOString();
     dispatch({ type: "START_STAGE", stage: "document-verification" });
     const docResult: CheckinStageResult = await executeDocumentVerification(ctx);
-    dispatch({ type: "COMPLETE_STAGE", stage: "document-verification", ...docResult });
-    pipelineLog.stageDone("document-verification", meta["document-verification"].title, Date.now() - t3, docResult.data);
-    stageLogs.push({ stageId: "document-verification", stageTitle: meta["document-verification"].title, status: "completed", startedAt: t3ISO, completedAt: new Date().toISOString(), durationMs: Date.now() - t3, data: docResult.data || {} });
+    if (docResult.valid) {
+      dispatch({ type: "COMPLETE_STAGE", stage: "document-verification", ...docResult });
+      pipelineLog.stageDone("document-verification", meta["document-verification"].title, Date.now() - t3, docResult.data);
+      stageLogs.push({ stageId: "document-verification", stageTitle: meta["document-verification"].title, status: "completed", startedAt: t3ISO, completedAt: new Date().toISOString(), durationMs: Date.now() - t3, data: docResult.data || {} });
+    } else {
+      dispatch({ type: "ERROR_STAGE", stage: "document-verification", error: docResult.summary, data: docResult.data });
+      pipelineLog.stageError("document-verification", meta["document-verification"].title, docResult.summary);
+      stageLogs.push({ stageId: "document-verification", stageTitle: meta["document-verification"].title, status: "error", startedAt: t3ISO, completedAt: new Date().toISOString(), durationMs: Date.now() - t3, data: docResult.data || {}, error: docResult.summary });
+    }
     await delay(INTER_STAGE_DELAY_MS);
 
-    // --- Stage 4: Bag Status ---
-    pipelineLog.stageStart("bag-status", meta["bag-status"].title);
+    // Track doc verification result for downstream stages
+    const docsValid = docResult.valid;
+    const docIssueMsg = docResult.issueMessage || "Document verification failed";
+
+    // --- Stage 4: Bag Status (dismissed if docs failed) ---
     const t4 = Date.now();
     const t4ISO = new Date().toISOString();
-    dispatch({ type: "START_STAGE", stage: "bag-status" });
-    const bagResult = await executeBagStatus(ctx);
-    dispatch({ type: "COMPLETE_STAGE", stage: "bag-status", ...bagResult });
-    pipelineLog.stageDone("bag-status", meta["bag-status"].title, Date.now() - t4, bagResult.data);
-    stageLogs.push({ stageId: "bag-status", stageTitle: meta["bag-status"].title, status: "completed", startedAt: t4ISO, completedAt: new Date().toISOString(), durationMs: Date.now() - t4, data: bagResult.data || {} });
+    if (docsValid) {
+      pipelineLog.stageStart("bag-status", meta["bag-status"].title);
+      dispatch({ type: "START_STAGE", stage: "bag-status" });
+      const bagResult = await executeBagStatus(ctx);
+      dispatch({ type: "COMPLETE_STAGE", stage: "bag-status", ...bagResult });
+      pipelineLog.stageDone("bag-status", meta["bag-status"].title, Date.now() - t4, bagResult.data);
+      stageLogs.push({ stageId: "bag-status", stageTitle: meta["bag-status"].title, status: "completed", startedAt: t4ISO, completedAt: new Date().toISOString(), durationMs: Date.now() - t4, data: bagResult.data || {} });
+    } else {
+      dispatch({ type: "SKIP_STAGE", stage: "bag-status", reason: "Dismissed — document verification failed" });
+      pipelineLog.stageSkip("bag-status", meta["bag-status"].title, "Document verification failed");
+      stageLogs.push({ stageId: "bag-status", stageTitle: meta["bag-status"].title, status: "skipped", startedAt: t4ISO, completedAt: new Date().toISOString(), durationMs: 0, data: {}, error: "Dismissed — document verification failed" });
+    }
     await delay(INTER_STAGE_DELAY_MS);
 
-    // --- Stage 5: Delivery Preferences ---
+    // --- Stage 5: Delivery Preferences (always runs — needed to know where to send nudge) ---
     pipelineLog.stageStart("delivery-preferences", meta["delivery-preferences"].title);
     const t5 = Date.now();
     const t5ISO = new Date().toISOString();
@@ -142,12 +158,12 @@ export function useOrchestrationPipeline(
     stageLogs.push({ stageId: "delivery-preferences", stageTitle: meta["delivery-preferences"].title, status: "completed", startedAt: t5ISO, completedAt: new Date().toISOString(), durationMs: Date.now() - t5, data: deliveryPrefResult.data || {} });
     await delay(INTER_STAGE_DELAY_MS);
 
-    // --- Stage 6: Auto Check-In ---
+    // --- Stage 6: Auto Check-In (fails immediately if docs invalid) ---
     let autoCheckinSucceeded = false;
     const t6 = Date.now();
     const t6ISO = new Date().toISOString();
 
-    if (docResult.valid) {
+    if (docsValid) {
       pipelineLog.stageStart("auto-checkin", meta["auto-checkin"].title);
       dispatch({ type: "START_STAGE", stage: "auto-checkin" });
       const checkinResult: CheckinStageResult = await executeAutoCheckin(ctx, true);
@@ -173,18 +189,19 @@ export function useOrchestrationPipeline(
       }
     } else {
       setCheckinValid(false);
-      setIssueMessage(docResult.issueMessage || "Document verification failed");
+      setIssueMessage(docIssueMsg);
       dispatch({
         type: "ERROR_STAGE",
         stage: "auto-checkin",
         error: "Blocked — document verification failed",
+        data: { "Status": "\u2717 Blocked", "Reason": docIssueMsg },
       });
       pipelineLog.stageError("auto-checkin", meta["auto-checkin"].title, "Blocked — document verification failed");
-      stageLogs.push({ stageId: "auto-checkin", stageTitle: meta["auto-checkin"].title, status: "error", startedAt: t6ISO, completedAt: new Date().toISOString(), durationMs: Date.now() - t6, data: {}, error: "Blocked — document verification failed" });
+      stageLogs.push({ stageId: "auto-checkin", stageTitle: meta["auto-checkin"].title, status: "error", startedAt: t6ISO, completedAt: new Date().toISOString(), durationMs: 0, data: { "Status": "Blocked", "Reason": docIssueMsg }, error: "Blocked — document verification failed" });
     }
     await delay(INTER_STAGE_DELAY_MS);
 
-    // --- Stage 7: Post Check-In Comms ---
+    // --- Stage 7: Post Check-In Comms (dismissed if check-in failed) ---
     const t7 = Date.now();
     const t7ISO = new Date().toISOString();
     if (autoCheckinSucceeded) {
@@ -199,20 +216,24 @@ export function useOrchestrationPipeline(
       dispatch({
         type: "SKIP_STAGE",
         stage: "post-checkin-comms",
-        reason: "Check-in blocked — cannot deliver boarding pass",
+        reason: "Dismissed — cannot deliver boarding pass",
       });
       pipelineLog.stageSkip("post-checkin-comms", meta["post-checkin-comms"].title, "Check-in blocked");
-      stageLogs.push({ stageId: "post-checkin-comms", stageTitle: meta["post-checkin-comms"].title, status: "skipped", startedAt: t7ISO, completedAt: new Date().toISOString(), durationMs: Date.now() - t7, data: {}, error: "Check-in blocked — cannot deliver boarding pass" });
+      stageLogs.push({ stageId: "post-checkin-comms", stageTitle: meta["post-checkin-comms"].title, status: "skipped", startedAt: t7ISO, completedAt: new Date().toISOString(), durationMs: 0, data: {}, error: "Dismissed — cannot deliver boarding pass" });
     }
 
     await delay(INTER_STAGE_DELAY_MS);
 
-    // --- Stage 8: AI Smart Nudge ---
+    // --- Stage 8: AI Smart Nudge (always runs — sends issue nudge when docs failed) ---
     const t8 = Date.now();
     const t8ISO = new Date().toISOString();
     pipelineLog.stageStart("ai-push-nudge", meta["ai-push-nudge"].title);
     dispatch({ type: "START_STAGE", stage: "ai-push-nudge" });
-    const nudgeResult: AiNudgeStageResult = await executeAiPushNudge(ctx, autoCheckinSucceeded);
+    const nudgeResult: AiNudgeStageResult = await executeAiPushNudge(
+      ctx,
+      autoCheckinSucceeded,
+      docsValid ? undefined : docIssueMsg,
+    );
     setNudgeMessage(nudgeResult.nudgeMessage);
     setNudgeAiGenerated(nudgeResult.aiGenerated);
     dispatch({ type: "COMPLETE_STAGE", stage: "ai-push-nudge", ...nudgeResult });

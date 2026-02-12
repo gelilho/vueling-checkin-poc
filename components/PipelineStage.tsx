@@ -161,9 +161,9 @@ export default function PipelineStage({
           </div>
         )}
 
-        {/* Skipped */}
+        {/* Skipped / Dismissed */}
         {status === "skipped" && (
-          <p className="text-xs text-gray-400 mt-1">Skipped</p>
+          <p className="text-xs text-gray-400 mt-1">Dismissed</p>
         )}
       </div>
     </div>

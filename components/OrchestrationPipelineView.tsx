@@ -189,20 +189,37 @@ export default function OrchestrationPipelineView({
 
               {/* AI Smart Nudge: clearly marked AI-generated content */}
               {stageId === "ai-push-nudge" && stageState.status === "completed" && nudgeMessage && (
-                <div className="mt-3 p-3 rounded-lg bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200/50">
+                <div className={`mt-3 p-3 rounded-lg bg-gradient-to-br ${
+                  checkinValid
+                    ? "from-purple-50 to-blue-50 border border-purple-200/50"
+                    : "from-amber-50 to-red-50 border border-red-200/50"
+                }`}>
                   <div className="flex items-center gap-1.5 mb-2">
-                    <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">
-                      ✦ AI-Generated Content
+                    <span className={`text-[10px] font-bold uppercase tracking-widest ${
+                      checkinValid ? "text-purple-600" : "text-red-600"
+                    }`}>
+                      {checkinValid ? "✦ AI-Generated Content" : "⚠ AI-Generated Alert"}
                     </span>
-                    <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 font-semibold">
+                    <span className={`text-[8px] px-1.5 py-0.5 rounded-full font-semibold ${
+                      checkinValid
+                        ? "bg-purple-100 text-purple-700"
+                        : "bg-red-100 text-red-700"
+                    }`}>
                       {nudgeAiGenerated ? "Gemini 2.0" : "Fallback"}
                     </span>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-white/70 border border-purple-100">
+                  <div className={`p-2.5 rounded-lg bg-white/70 ${
+                    checkinValid ? "border border-purple-100" : "border border-red-100"
+                  }`}>
                     <p className="text-xs text-vueling-dark leading-relaxed">{nudgeMessage}</p>
                   </div>
-                  <p className="text-[8px] text-purple-400 mt-1.5 italic">
-                    Push notification ready to deliver to passenger
+                  <p className={`text-[8px] mt-1.5 italic ${
+                    checkinValid ? "text-purple-400" : "text-red-400"
+                  }`}>
+                    {checkinValid
+                      ? "Push notification ready to deliver to passenger"
+                      : "Action required notification sent to passenger"
+                    }
                   </p>
                 </div>
               )}
@@ -214,23 +231,42 @@ export default function OrchestrationPipelineView({
       {/* Completion */}
       {pipelineDone && totalDuration != null && (
         <div className="mt-6 animate-slide-up">
-          {/* Summary bar */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-vueling-green/5 border border-vueling-green/20 mb-4">
-            <div>
-              <p className="text-sm font-semibold text-vueling-dark">
-                ✓ Pipeline complete
-              </p>
-              <p className="text-xs text-vueling-gray mt-0.5">
-                Zero passenger action required
-              </p>
+          {/* Summary bar — different styling for success vs blocked */}
+          {checkinValid ? (
+            <div className="flex items-center justify-between p-3 rounded-xl bg-vueling-green/5 border border-vueling-green/20 mb-4">
+              <div>
+                <p className="text-sm font-semibold text-vueling-dark">
+                  ✓ Pipeline complete
+                </p>
+                <p className="text-xs text-vueling-gray mt-0.5">
+                  Zero passenger action required
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-lg font-mono font-bold text-vueling-green">
+                  {formatDuration(totalDuration)}
+                </p>
+                <p className="text-[10px] text-vueling-gray">total time</p>
+              </div>
             </div>
-            <div className="text-right">
-              <p className="text-lg font-mono font-bold text-vueling-green">
-                {formatDuration(totalDuration)}
-              </p>
-              <p className="text-[10px] text-vueling-gray">total time</p>
+          ) : (
+            <div className="flex items-center justify-between p-3 rounded-xl bg-red-50 border border-red-200 mb-4">
+              <div>
+                <p className="text-sm font-semibold text-red-700">
+                  ✗ Check-in blocked
+                </p>
+                <p className="text-xs text-red-500 mt-0.5">
+                  Action required — nudge sent to passenger
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-lg font-mono font-bold text-red-400">
+                  {formatDuration(totalDuration)}
+                </p>
+                <p className="text-[10px] text-vueling-gray">total time</p>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Actions */}
           <div className="flex gap-2">
