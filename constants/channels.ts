@@ -18,8 +18,6 @@ export const CHANNELS: ChannelConfig[] = [
   { id: "app", label: "In-app", icon: "📲" },
 ];
 
-export const DEFAULT_CHANNELS: DeliveryChannel[] = ["email", "push", "app"];
-
 export function getChannelLabel(id: DeliveryChannel): string {
   return CHANNELS.find((c) => c.id === id)?.label ?? id;
 }

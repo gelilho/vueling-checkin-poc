@@ -133,6 +133,26 @@ The check-in confirmation is a high-attention moment. AI-powered bag upsells her
 
 ---
 
+## IAG Group Scalability
+
+The pipeline is **airline-agnostic by design**. The 8-stage orchestration engine, AI document verification, and smart nudge system are fully configurable. Any airline within the IAG group can adopt the same pipeline with minimal integration work.
+
+| Airline | Passengers (2024) | Status |
+|---------|-------------------|--------|
+| Vueling | 38.2M | POC in progress |
+| British Airways | 39.5M | Same pipeline, different config |
+| Iberia | 28.6M | Same pipeline, different config |
+| Aer Lingus | 12.0M | Same pipeline, different config |
+| **IAG Group Total** | **118.3M** | |
+
+The architecture separates the orchestration engine from airline-specific configuration (branding, API endpoints, document rules, delivery channels). This means:
+
+- **Same pipeline**: booking retrieval, passenger data, document verification, bag status, delivery preferences, auto check-in, comms, AI nudge
+- **Different config**: airline branding, seat assignment rules, document country rules, AI prompt language, delivery channel priorities
+- **One integration**: connect to the airline's DCS (Departure Control System) and the pipeline runs
+
+---
+
 ## Roadmap
 
 | Phase | Timeline | Scope |

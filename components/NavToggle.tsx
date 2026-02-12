@@ -12,6 +12,8 @@ const navItems: NavItem[] = [
   { href: "/impact", label: "Business Case" },
   { href: "/onboarding", label: "Booking" },
   { href: "/pipeline", label: "Pipeline" },
+  { href: "/one-pager", label: "One-Pager" },
+  { href: "/pitch-deck", label: "Deck" },
   { href: "/api-docs", label: "API" },
 ];
 

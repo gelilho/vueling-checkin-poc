@@ -91,12 +91,6 @@ export function downloadSubmissionsCSV(): void {
   URL.revokeObjectURL(url);
 }
 
-/** Clear all submissions */
-export function clearSubmissions(): void {
-  if (typeof window === "undefined") return;
-  localStorage.removeItem(STORAGE_KEY);
-}
-
 /** Get submission count */
 export function getSubmissionCount(): number {
   return getSubmissions().length;

@@ -7,9 +7,7 @@ export { levenshtein, isFuzzyMatch, fillTemplate, stripDataUrlPrefix } from "./s
 export {
   saveSubmission,
   getSubmissions,
-  submissionsToCSV,
   downloadSubmissionsCSV,
-  clearSubmissions,
   getSubmissionCount,
   getLatestSubmission,
 } from "./storage";

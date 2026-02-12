@@ -3,9 +3,6 @@
  * Controls the visual rhythm of both demo and orchestration pipelines.
  */
 
-/** Minimum display time for any pipeline stage (ms) */
-export const MIN_STAGE_DURATION_MS = 800;
-
 /** Pause between pipeline stages (ms) */
 export const INTER_STAGE_DELAY_MS = 400;
 
@@ -28,9 +25,6 @@ export const ORCH_STAGE_DURATIONS = {
   "post-checkin-comms": 1200,
   "ai-push-nudge": 1500,
 } as const;
-
-/** Delay between passengers in batch processing (ms) */
-export const BATCH_PASSENGER_DELAY_MS = 500;
 
 /** DataReveal animation timing */
 export const DATA_REVEAL = {
