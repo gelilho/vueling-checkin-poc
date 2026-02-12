@@ -21,7 +21,10 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
   const [manualName, setManualName] = useState("");
   const [manualPassport, setManualPassport] = useState("");
   const [manualExpiry, setManualExpiry] = useState("");
-  const manualValid = manualName.trim().length > 1 && manualPassport.trim().length > 4 && manualExpiry.trim().length > 0;
+  const [manualNationality, setManualNationality] = useState("");
+  const [manualDob, setManualDob] = useState("");
+  const [manualCountryOfIssue, setManualCountryOfIssue] = useState("");
+  const manualValid = manualName.trim().length > 1 && manualPassport.trim().length > 4 && manualExpiry.trim().length > 0 && manualNationality.trim().length > 1 && manualDob.trim().length > 0;
 
   async function processImage(base64: string) {
     setStatus("processing");
@@ -84,6 +87,9 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
     setManualName("");
     setManualPassport("");
     setManualExpiry("");
+    setManualNationality("");
+    setManualDob("");
+    setManualCountryOfIssue("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -198,6 +204,51 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
           />
         </div>
 
+        {/* Nationality */}
+        <div>
+          <label className="block text-[11px] font-semibold text-vueling-dark mb-1.5">
+            Nationality
+          </label>
+          <input
+            type="text"
+            value={manualNationality}
+            onChange={(e) => setManualNationality(e.target.value.toUpperCase())}
+            placeholder="e.g. ESP, GBR, FRA"
+            maxLength={3}
+            className="w-full px-3 py-3 text-sm font-mono border-2 border-gray-200 rounded-xl focus:border-vueling-yellow focus:outline-none transition-colors placeholder:text-gray-300 uppercase tracking-wider"
+          />
+        </div>
+
+        {/* Date of birth */}
+        <div>
+          <label className="block text-[11px] font-semibold text-vueling-dark mb-1.5">
+            Date of birth
+          </label>
+          <input
+            type="date"
+            value={manualDob}
+            onChange={(e) => setManualDob(e.target.value)}
+            min="1920-01-01"
+            max={new Date().toISOString().split("T")[0]}
+            className="w-full px-3 py-3 text-sm border-2 border-gray-200 rounded-xl focus:border-vueling-yellow focus:outline-none transition-colors"
+          />
+        </div>
+
+        {/* Country of issue */}
+        <div>
+          <label className="block text-[11px] font-semibold text-vueling-dark mb-1.5">
+            Country of issue
+          </label>
+          <input
+            type="text"
+            value={manualCountryOfIssue}
+            onChange={(e) => setManualCountryOfIssue(e.target.value.toUpperCase())}
+            placeholder="e.g. ESP, GBR, FRA"
+            maxLength={3}
+            className="w-full px-3 py-3 text-sm font-mono border-2 border-gray-200 rounded-xl focus:border-vueling-yellow focus:outline-none transition-colors placeholder:text-gray-300 uppercase tracking-wider"
+          />
+        </div>
+
         {/* Expiry date */}
         <div>
           <label className="block text-[11px] font-semibold text-vueling-dark mb-1.5">
@@ -207,7 +258,8 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
             type="date"
             value={manualExpiry}
             onChange={(e) => setManualExpiry(e.target.value)}
-            min={new Date().toISOString().split("T")[0]}
+            min="2024-01-01"
+            max="2040-12-31"
             className="w-full px-3 py-3 text-sm border-2 border-gray-200 rounded-xl focus:border-vueling-yellow focus:outline-none transition-colors"
           />
         </div>
@@ -220,6 +272,9 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
               setManualName("");
               setManualPassport("");
               setManualExpiry("");
+              setManualNationality("");
+              setManualDob("");
+              setManualCountryOfIssue("");
             }}
             className="flex-1 py-3 text-xs font-semibold text-vueling-gray border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
           >
@@ -230,11 +285,11 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
               const fields: Record<string, string> = {
                 fullName: manualName.trim(),
                 passportNumber: manualPassport.trim(),
-                expiryDate: manualExpiry,
-                nationality: "—",
-                dateOfBirth: "—",
+                nationality: manualNationality.trim() || "—",
+                dateOfBirth: manualDob || "—",
                 gender: "—",
-                issuingCountry: "—",
+                expiryDate: manualExpiry,
+                issuingCountry: manualCountryOfIssue.trim() || "—",
                 entryMethod: "manual",
               };
               setParsedFields(fields);
@@ -277,6 +332,9 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
       ? {
           "Full name": parsedFields.fullName,
           "Document number": parsedFields.passportNumber,
+          "Nationality": parsedFields.nationality,
+          "Date of birth": parsedFields.dateOfBirth,
+          "Country of issue": parsedFields.issuingCountry,
           "Expiry date": parsedFields.expiryDate,
         }
       : {

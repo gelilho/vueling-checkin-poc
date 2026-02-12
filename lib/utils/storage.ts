@@ -12,6 +12,9 @@ export interface CheckInSubmission {
   flight: string;
   fullName: string;
   passportNumber: string;
+  nationality: string;
+  dateOfBirth: string;
+  issuingCountry: string;
   expiryDate: string;
   entryMethod: "scan" | "manual";
   deliveryChannels: string;
@@ -24,6 +27,9 @@ const CSV_HEADERS: (keyof CheckInSubmission)[] = [
   "flight",
   "fullName",
   "passportNumber",
+  "nationality",
+  "dateOfBirth",
+  "issuingCountry",
   "expiryDate",
   "entryMethod",
   "deliveryChannels",

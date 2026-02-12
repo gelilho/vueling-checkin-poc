@@ -15,3 +15,13 @@ export {
 } from "./storage";
 export type { CheckInSubmission } from "./storage";
 export { pipelineLog } from "./logger";
+export {
+  savePipelineExecution,
+  getPipelineExecutions,
+  getPassengerPipelineStatus,
+  getPipelineExecutionCount,
+  pipelineExecutionsToCSV,
+  downloadPipelineExecutionsCSV,
+  clearPipelineExecutions,
+} from "./pipeline-log-storage";
+export type { PipelineExecutionLog, PipelineStageLog } from "./pipeline-log-storage";
