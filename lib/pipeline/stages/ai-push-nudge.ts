@@ -55,7 +55,8 @@ export async function executeAiPushNudge(
           throw new Error("No message in response");
         }
       } catch {
-        nudgeMessage = `Hi ${ctx.name || "there"}, we couldn't complete your automatic check-in for your flight to ${ctx.destinationCity || ctx.destination}. Issue: ${docIssueMessage}. Please update your documents or contact support.`;
+        // Fallback: use the actual validation issue as the message
+        nudgeMessage = `Hi ${ctx.name || "there"}, we couldn't complete your automatic check-in for your flight to ${ctx.destinationCity || ctx.destination}.\n\n${docIssueMessage}\n\nPlease update your details in order to complete check-in.`;
         aiGenerated = false;
       }
 
