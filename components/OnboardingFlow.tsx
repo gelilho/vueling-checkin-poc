@@ -1,7 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DocumentCapture from "./DocumentCapture";
+import {
+  saveSubmission,
+  getSubmissionCount,
+  downloadSubmissionsCSV,
+} from "@/lib/utils/storage";
+import type { CheckInSubmission } from "@/lib/utils/storage";
 
 type OnboardingStep = "booking-confirmed" | "opt-in" | "delivery" | "document" | "ready";
 type DeliveryMethod = "email" | "sms" | "push" | "app";
@@ -60,6 +66,11 @@ export default function OnboardingFlow() {
   const [step, setStep] = useState<OnboardingStep>("booking-confirmed");
   const [selectedDelivery, setSelectedDelivery] = useState<DeliveryMethod[]>(["email", "push"]);
   const [documentData, setDocumentData] = useState<Record<string, string> | null>(null);
+  const [submissionCount, setSubmissionCount] = useState(0);
+
+  useEffect(() => {
+    setSubmissionCount(getSubmissionCount());
+  }, []);
 
   function toggleDelivery(method: DeliveryMethod) {
     setSelectedDelivery((prev) =>
@@ -67,6 +78,23 @@ export default function OnboardingFlow() {
         ? prev.filter((m) => m !== method)
         : [...prev, method]
     );
+  }
+
+  /** Save the completed check-in data to localStorage as CSV-ready JSON */
+  function persistSubmission(docData: Record<string, string> | null) {
+    const submission: CheckInSubmission = {
+      timestamp: new Date().toISOString(),
+      pnr: "VY-M2026A",
+      flight: "VY1234 BCN→FCO",
+      fullName: docData?.fullName || "",
+      passportNumber: docData?.passportNumber || "",
+      expiryDate: docData?.expiryDate || "",
+      entryMethod: docData?.entryMethod === "manual" ? "manual" : "scan",
+      deliveryChannels: selectedDelivery.join(";"),
+      autoCheckIn: "yes",
+    };
+    saveSubmission(submission);
+    setSubmissionCount(getSubmissionCount());
   }
 
   // ---- Step 1: Booking confirmed ----
@@ -300,9 +328,13 @@ export default function OnboardingFlow() {
         <DocumentCapture
           onVerified={(data) => {
             setDocumentData(data);
+            persistSubmission(data);
             setStep("ready");
           }}
-          onSkip={() => setStep("ready")}
+          onSkip={() => {
+            persistSubmission(null);
+            setStep("ready");
+          }}
         />
       </div>
     );
@@ -358,17 +390,30 @@ export default function OnboardingFlow() {
         </p>
       </div>
 
-      {/* Restart demo */}
-      <button
-        onClick={() => {
-          setStep("booking-confirmed");
-          setSelectedDelivery(["email", "push"]);
-          setDocumentData(null);
-        }}
-        className="px-6 py-2.5 bg-vueling-yellow text-vueling-dark font-semibold rounded-xl text-sm active:scale-[0.97] transition-transform"
-      >
-        Restart demo
-      </button>
+      {/* Actions */}
+      <div className="flex gap-2 w-full">
+        <button
+          onClick={() => {
+            setStep("booking-confirmed");
+            setSelectedDelivery(["email", "push"]);
+            setDocumentData(null);
+          }}
+          className="flex-1 py-2.5 bg-vueling-yellow text-vueling-dark font-semibold rounded-xl text-sm active:scale-[0.97] transition-transform"
+        >
+          Restart demo
+        </button>
+        {submissionCount > 0 && (
+          <button
+            onClick={downloadSubmissionsCSV}
+            className="flex-1 py-2.5 border border-gray-200 text-vueling-dark font-semibold rounded-xl text-sm hover:bg-gray-50 transition-colors flex items-center justify-center gap-1.5"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            CSV ({submissionCount})
+          </button>
+        )}
+      </div>
 
       <p className="text-[10px] text-gray-300 uppercase tracking-widest mt-8">
         4YFN / MWC 2026 — Post-Booking Experience

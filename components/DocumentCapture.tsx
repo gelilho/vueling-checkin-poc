@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { API_ENDPOINTS } from "@/constants/api";
 
-type CaptureStatus = "idle" | "uploading" | "processing" | "success" | "failed";
+type CaptureStatus = "idle" | "manual" | "uploading" | "processing" | "success" | "failed";
 
 interface DocumentCaptureProps {
   onVerified: (data: Record<string, string>) => void;
@@ -16,6 +16,12 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
   const [parsedFields, setParsedFields] = useState<Record<string, string> | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Manual entry state
+  const [manualName, setManualName] = useState("");
+  const [manualPassport, setManualPassport] = useState("");
+  const [manualExpiry, setManualExpiry] = useState("");
+  const manualValid = manualName.trim().length > 1 && manualPassport.trim().length > 4 && manualExpiry.trim().length > 0;
 
   async function processImage(base64: string) {
     setStatus("processing");
@@ -75,6 +81,9 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
     setPreviewUrl(null);
     setParsedFields(null);
     setErrorMsg(null);
+    setManualName("");
+    setManualPassport("");
+    setManualExpiry("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -117,15 +126,126 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
           className="hidden"
         />
 
+        {/* Divider */}
+        <div className="flex items-center gap-3 my-1">
+          <div className="flex-1 h-px bg-gray-200" />
+          <span className="text-[10px] text-vueling-gray uppercase tracking-wider">or</span>
+          <div className="flex-1 h-px bg-gray-200" />
+        </div>
+
+        {/* Manual entry option */}
+        <button
+          onClick={() => setStatus("manual")}
+          className="w-full flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-vueling-yellow hover:bg-vueling-yellow/5 transition-all group"
+        >
+          <div className="w-10 h-10 rounded-lg bg-vueling-yellow/15 flex items-center justify-center group-hover:bg-vueling-yellow/30 transition-colors">
+            <svg className="w-5 h-5 text-vueling-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </div>
+          <div className="text-left">
+            <p className="text-sm font-semibold text-vueling-dark">Enter manually</p>
+            <p className="text-[11px] text-vueling-gray">Type your name, passport number & expiry</p>
+          </div>
+        </button>
+
         {/* Skip option */}
         {onSkip && (
           <button
             onClick={onSkip}
             className="w-full text-center text-xs text-vueling-gray hover:text-vueling-dark transition-colors py-2"
           >
-            Enter details manually later →
+            I&apos;ll add this later →
           </button>
         )}
+      </div>
+    );
+  }
+
+  // ---- MANUAL ENTRY ----
+  if (status === "manual") {
+    return (
+      <div className="space-y-4 animate-fade-in">
+        <p className="text-xs text-vueling-gray">
+          Enter your passport or ID details below
+        </p>
+
+        {/* Full name */}
+        <div>
+          <label className="block text-[11px] font-semibold text-vueling-dark mb-1.5">
+            Full name <span className="text-vueling-gray font-normal">(as on document)</span>
+          </label>
+          <input
+            type="text"
+            value={manualName}
+            onChange={(e) => setManualName(e.target.value)}
+            placeholder="e.g. GARCÍA LÓPEZ, MARÍA"
+            className="w-full px-3 py-3 text-sm border-2 border-gray-200 rounded-xl focus:border-vueling-yellow focus:outline-none transition-colors placeholder:text-gray-300"
+          />
+        </div>
+
+        {/* Passport number */}
+        <div>
+          <label className="block text-[11px] font-semibold text-vueling-dark mb-1.5">
+            Passport / ID number
+          </label>
+          <input
+            type="text"
+            value={manualPassport}
+            onChange={(e) => setManualPassport(e.target.value.toUpperCase())}
+            placeholder="e.g. PAA123456"
+            className="w-full px-3 py-3 text-sm font-mono border-2 border-gray-200 rounded-xl focus:border-vueling-yellow focus:outline-none transition-colors placeholder:text-gray-300 uppercase tracking-wider"
+          />
+        </div>
+
+        {/* Expiry date */}
+        <div>
+          <label className="block text-[11px] font-semibold text-vueling-dark mb-1.5">
+            Expiry date
+          </label>
+          <input
+            type="date"
+            value={manualExpiry}
+            onChange={(e) => setManualExpiry(e.target.value)}
+            min={new Date().toISOString().split("T")[0]}
+            className="w-full px-3 py-3 text-sm border-2 border-gray-200 rounded-xl focus:border-vueling-yellow focus:outline-none transition-colors"
+          />
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2 pt-1">
+          <button
+            onClick={() => {
+              setStatus("idle");
+              setManualName("");
+              setManualPassport("");
+              setManualExpiry("");
+            }}
+            className="flex-1 py-3 text-xs font-semibold text-vueling-gray border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+          >
+            ← Back
+          </button>
+          <button
+            onClick={() => {
+              const fields: Record<string, string> = {
+                fullName: manualName.trim(),
+                passportNumber: manualPassport.trim(),
+                expiryDate: manualExpiry,
+                nationality: "—",
+                dateOfBirth: "—",
+                gender: "—",
+                issuingCountry: "—",
+                entryMethod: "manual",
+              };
+              setParsedFields(fields);
+              setStatus("success");
+            }}
+            disabled={!manualValid}
+            className="flex-1 py-3 text-xs font-bold text-vueling-dark bg-vueling-yellow rounded-xl hover:bg-vueling-yellow/80 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Confirm
+          </button>
+        </div>
       </div>
     );
   }
@@ -152,6 +272,21 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
 
   // ---- SUCCESS ----
   if (status === "success" && parsedFields) {
+    const isManual = parsedFields.entryMethod === "manual";
+    const displayFields = isManual
+      ? {
+          "Full name": parsedFields.fullName,
+          "Document number": parsedFields.passportNumber,
+          "Expiry date": parsedFields.expiryDate,
+        }
+      : {
+          "Full name": parsedFields.fullName,
+          "Document number": parsedFields.passportNumber,
+          "Nationality": parsedFields.nationality,
+          "Date of birth": parsedFields.dateOfBirth,
+          "Expiry date": parsedFields.expiryDate,
+        };
+
     return (
       <div className="animate-fade-in">
         {/* Success banner */}
@@ -162,8 +297,12 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
             </svg>
           </div>
           <div>
-            <p className="text-sm font-semibold text-green-800">Document verified</p>
-            <p className="text-[11px] text-green-600">All fields extracted successfully</p>
+            <p className="text-sm font-semibold text-green-800">
+              {isManual ? "Details saved" : "Document verified"}
+            </p>
+            <p className="text-[11px] text-green-600">
+              {isManual ? "Entered manually" : "All fields extracted successfully"}
+            </p>
           </div>
         </div>
 
@@ -175,13 +314,7 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
         )}
 
         <div className="space-y-1.5 mb-4">
-          {Object.entries({
-            "Full name": parsedFields.fullName,
-            "Document number": parsedFields.passportNumber,
-            "Nationality": parsedFields.nationality,
-            "Date of birth": parsedFields.dateOfBirth,
-            "Expiry date": parsedFields.expiryDate,
-          }).map(([label, value], i) => (
+          {Object.entries(displayFields).map(([label, value], i) => (
             <div
               key={label}
               className="flex items-center justify-between py-1.5 px-2 rounded bg-gray-50 animate-slide-up"
