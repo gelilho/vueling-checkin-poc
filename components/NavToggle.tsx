@@ -12,6 +12,7 @@ const navItems: NavItem[] = [
   { href: "/onboarding", label: "Booking" },
   { href: "/pipeline", label: "Pipeline Demo" },
   { href: "/impact", label: "Impact" },
+  { href: "/api-docs", label: "API" },
 ];
 
 export default function NavToggle() {
