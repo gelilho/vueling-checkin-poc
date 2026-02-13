@@ -8,7 +8,6 @@ export {
   // Demo pipeline stages
   executeChannels,
   executeScanMocked,
-  executeScanLive,
   executeCheckin,
   executeDelivery,
   // Orchestration pipeline stages

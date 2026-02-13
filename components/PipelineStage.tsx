@@ -154,7 +154,7 @@ export default function PipelineStage({
             className={`mt-3 transition-all duration-400 ${
               isExpanded
                 ? "max-h-none opacity-100"
-                : "max-h-[200px] opacity-100 overflow-hidden"
+                : "max-h-[600px] opacity-100 overflow-hidden"
             }`}
           >
             {children}

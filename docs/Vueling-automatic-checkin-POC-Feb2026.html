@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invisible Check-In — Automated &amp; Invisible — Vueling · NextGen Aviation Challenge</title>
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #e8e8e8;
+      color: #1a1a2e;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    :root {
+      --yellow: #FFD100;
+      --dark: #1a1a2e;
+      --gray: #6b7280;
+      --light-gray: #9ca3af;
+      --bg: #ffffff;
+    }
+
+    /* ── Slides ── */
+    .slide {
+      width: 1080px;
+      height: 700px;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 4px;
+      overflow: hidden;
+      display: none;
+      background: var(--bg);
+      box-shadow: 0 4px 40px rgba(0,0,0,0.12);
+    }
+    .slide.active { display: block; }
+
+    /* ── Logo ── */
+    .vueling-logo {
+      position: absolute; top: 28px; left: 40px;
+      display: flex; align-items: center; gap: 8px; z-index: 10;
+    }
+    .vueling-logo .dot { width: 14px; height: 14px; background: var(--yellow); border-radius: 50%; }
+    .vueling-logo .name { font-size: 16px; font-weight: 700; color: var(--dark); letter-spacing: -0.3px; }
+
+    /* ── Nav ── */
+    .slide-nav {
+      position: absolute; bottom: 20px; left: 0; right: 0;
+      display: flex; align-items: center; justify-content: center; gap: 12px; z-index: 20;
+    }
+    .slide-nav .arrow {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 1.5px solid #d1d5db; background: none;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s; color: #9ca3af; font-size: 12px;
+    }
+    .slide-nav .arrow:hover { border-color: var(--dark); color: var(--dark); }
+    .nav-dots { display: flex; align-items: center; gap: 6px; }
+    .nav-dot {
+      width: 8px; height: 8px; border-radius: 4px;
+      background: #d1d5db; cursor: pointer; transition: all 0.3s; border: none;
+    }
+    .nav-dot.active { width: 24px; background: var(--yellow); }
+
+    /* ══════════════════════════ */
+    /* COVER                      */
+    /* ══════════════════════════ */
+    .cover-left-dots {
+      position: absolute; top: 80px; left: 40px;
+      display: flex; flex-direction: column; gap: 8px; z-index: 5;
+    }
+    .cover-left-dots .ydot { width: 8px; height: 8px; background: var(--yellow); border-radius: 50%; }
+    .cover-yellow-bar {
+      position: absolute; bottom: 0; left: 0;
+      width: 120px; height: 6px; background: var(--yellow); z-index: 5;
+    }
+    .airplane-deco {
+      position: absolute; right: 40px; top: 50%;
+      transform: translateY(-50%); width: 320px; height: 320px; z-index: 1; opacity: 0.06;
+    }
+    .airplane-accent {
+      position: absolute; right: 180px; top: 140px;
+      width: 18px; height: 18px; background: var(--yellow); border-radius: 50%; z-index: 2;
+    }
+    .cover-content {
+      position: absolute; top: 50%; left: 80px;
+      transform: translateY(-50%); z-index: 10; max-width: 520px;
+    }
+    .cover-content .challenge-label {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 3px;
+      color: var(--light-gray); font-weight: 600; margin-bottom: 16px;
+    }
+    .cover-content h1 {
+      font-size: 36px; font-weight: 800; line-height: 1.15;
+      color: var(--dark); letter-spacing: -1px; margin-bottom: 12px;
+    }
+    .cover-content .yellow-divider { width: 48px; height: 4px; background: var(--yellow); border-radius: 2px; margin-bottom: 14px; }
+    .cover-content .subtitle { font-size: 15px; color: var(--gray); line-height: 1.5; margin-bottom: 28px; }
+    .cover-content .author { font-size: 12px; color: var(--light-gray); line-height: 1.6; }
+    .cover-content .author strong { color: var(--dark); font-weight: 600; }
+    .gdot-grid {
+      position: absolute; top: 30px; right: 20px;
+      display: grid; grid-template-columns: repeat(8, 8px); gap: 12px; z-index: 1;
+    }
+    .gdot { width: 4px; height: 4px; background: #d1d5db; border-radius: 50%; }
+
+    /* ══════════════════════════ */
+    /* CONTENT SLIDES              */
+    /* ══════════════════════════ */
+    .left-bullets {
+      position: absolute; top: 76px; left: 40px;
+      display: flex; flex-direction: column; gap: 6px; z-index: 5;
+    }
+    .left-bullets .ydot { width: 6px; height: 6px; background: var(--yellow); border-radius: 50%; }
+    .right-deco {
+      position: absolute; top: 40px; right: 24px;
+      display: grid; grid-template-columns: repeat(6, 8px); gap: 14px; z-index: 1;
+    }
+    .right-deco .gdot { width: 4px; height: 4px; background: #e5e7eb; border-radius: 50%; }
+
+    .slide-body {
+      position: absolute; top: 70px; left: 80px; right: 80px; bottom: 60px;
+      z-index: 10; display: flex; flex-direction: column;
+    }
+    .slide-body .section-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 2.5px;
+      color: var(--light-gray); font-weight: 600; margin-bottom: 10px;
+    }
+    .slide-body h2 {
+      font-size: 28px; font-weight: 800; color: var(--dark);
+      letter-spacing: -0.8px; line-height: 1.2; margin-bottom: 6px;
+    }
+    .slide-body .lead {
+      font-size: 13px; color: var(--gray); line-height: 1.6;
+      margin-bottom: 20px; max-width: 700px;
+    }
+    .slide-body .lead strong { color: var(--dark); font-weight: 600; }
+
+    /* ── Stat cards ── */
+    .stat-row { display: flex; gap: 16px; margin-top: 8px; }
+    .stat-card {
+      flex: 1; padding: 18px 20px; background: #fafafa;
+      border: 1px solid #f0f0f0; border-radius: 12px; border-left: 4px solid #ef4444;
+    }
+    .stat-card .number { font-size: 30px; font-weight: 800; color: #ef4444; letter-spacing: -1px; }
+    .stat-card .desc { font-size: 11px; color: var(--gray); margin-top: 4px; line-height: 1.4; }
+    .stat-card .desc strong { color: var(--dark); }
+
+    /* ── KPI grid ── */
+    .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 4px; }
+    .kpi-card { padding: 14px 16px; background: #fafafa; border: 1px solid #f0f0f0; border-radius: 10px; }
+    .kpi-card .kpi-val { font-size: 20px; font-weight: 800; color: var(--dark); letter-spacing: -0.5px; }
+    .kpi-card .kpi-unit { font-size: 9px; color: var(--light-gray); text-transform: uppercase; letter-spacing: 0.5px; }
+    .kpi-card .kpi-label { font-size: 10px; color: var(--gray); margin-top: 3px; font-weight: 500; }
+
+    /* ── Flow steps ── */
+    .flow-steps { display: flex; gap: 6px; margin-top: 8px; }
+    .flow-step {
+      flex: 1; padding: 10px 8px; background: #fafafa;
+      border: 1px solid #f0f0f0; border-radius: 8px; text-align: center;
+    }
+    .flow-step .fs-num { font-size: 16px; font-weight: 800; color: var(--yellow); }
+    .flow-step .fs-title {
+      font-size: 9px; font-weight: 700; color: var(--dark);
+      margin-top: 2px; text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .flow-step .fs-desc { font-size: 8px; color: var(--gray); margin-top: 2px; line-height: 1.3; }
+
+    /* ── Privacy box ── */
+    .privacy-box {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 16px; background: #f0fdf4;
+      border: 1px solid #bbf7d0; border-radius: 10px; margin-top: 12px;
+    }
+    .privacy-box .shield {
+      width: 28px; height: 28px; background: #dcfce7; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;
+    }
+    .privacy-box .privacy-label { font-size: 11px; font-weight: 700; color: #15803d; margin-bottom: 2px; }
+    .privacy-box .privacy-desc { font-size: 10px; color: var(--gray); line-height: 1.4; }
+    .privacy-box .privacy-desc strong { color: var(--dark); }
+
+    /* ── Bullet list ── */
+    .bullet-list { list-style: none; margin-top: 8px; }
+    .bullet-list li {
+      font-size: 12px; color: var(--gray); line-height: 1.5;
+      padding: 4px 0 4px 16px; position: relative;
+    }
+    .bullet-list li::before {
+      content: ''; position: absolute; left: 0; top: 11px;
+      width: 6px; height: 6px; background: var(--yellow); border-radius: 50%;
+    }
+    .bullet-list li strong { color: var(--dark); font-weight: 600; }
+
+    /* ── Two cols ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; }
+    .col-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--light-gray); font-weight: 600; margin-bottom: 8px; }
+
+    /* ── Vision box ── */
+    .vision-box {
+      padding: 14px 18px; border-radius: 10px;
+      background: linear-gradient(135deg, #1a1a2e, #111827);
+      color: #fff; margin-top: 16px;
+    }
+    .vision-box .vb-label {
+      font-size: 9px; text-transform: uppercase; letter-spacing: 2px;
+      color: var(--yellow); font-weight: 700; margin-bottom: 6px;
+    }
+    .vision-box .vb-text { font-size: 11px; color: #d1d5db; line-height: 1.5; }
+    .vision-box .vb-text strong { color: #fff; }
+    .vision-modules { display: flex; gap: 6px; margin-top: 8px; }
+    .vision-mod {
+      padding: 5px 10px; border-radius: 6px; font-size: 9px; font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.1); color: #9ca3af;
+    }
+    .vision-mod.active {
+      background: rgba(255,209,0,0.15); border-color: rgba(255,209,0,0.4); color: var(--yellow);
+    }
+
+    /* ── Airline rows ── */
+    .airline-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; background: #fafafa;
+      border: 1px solid #f0f0f0; border-radius: 8px; margin-bottom: 6px;
+    }
+    .airline-badge {
+      width: 28px; height: 28px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 12px; color: #fff;
+    }
+    .airline-name { font-size: 12px; font-weight: 600; color: var(--dark); flex: 1; }
+    .airline-pax { font-size: 11px; font-weight: 700; color: var(--gray); }
+
+    /* ── Roadmap rows ── */
+    .rm-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; border-radius: 8px; margin-bottom: 5px;
+      border: 1px solid #f0f0f0; background: #fafafa;
+    }
+    .rm-row.active { background: rgba(255,209,0,0.08); border-color: rgba(255,209,0,0.3); }
+    .rm-pulse {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--yellow); animation: pulse 2s infinite; flex-shrink: 0;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .rm-phase { font-size: 11px; font-weight: 700; color: var(--dark); }
+    .rm-time { font-size: 9px; color: var(--light-gray); margin-left: auto; font-weight: 600; }
+    .rm-detail { font-size: 9px; color: var(--gray); }
+
+    /* ── CTA bar ── */
+    .cta-bar { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+    .cta-box {
+      padding: 10px 24px; background: var(--yellow); border-radius: 8px;
+      font-size: 12px; font-weight: 700; color: var(--dark);
+    }
+    .cta-footnote { font-size: 9px; color: var(--light-gray); }
+
+    /* ── Desc grid ── */
+    .desc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+    .desc-card { padding: 14px 16px; background: #fafafa; border: 1px solid #f0f0f0; border-radius: 10px; }
+    .desc-card .dc-title { font-size: 11px; font-weight: 700; color: var(--dark); margin-bottom: 3px; }
+    .desc-card .dc-text { font-size: 10px; color: var(--gray); line-height: 1.4; }
+    .desc-card .dc-text strong { color: var(--dark); }
+
+    /* ── Screenshot cards ── */
+    .screenshot-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px; flex: 1;
+    }
+    .screenshot-card {
+      background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 12px;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .screenshot-card .sc-preview {
+      flex: 1; background: #1a1a2e; position: relative;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 180px; overflow: hidden;
+    }
+    .screenshot-card .sc-preview .sc-watermark {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%) rotate(-20deg);
+      font-size: 28px; font-weight: 800; color: rgba(255,209,0,0.08);
+      text-transform: uppercase; letter-spacing: 6px; white-space: nowrap;
+      pointer-events: none; z-index: 5;
+    }
+    .screenshot-card .sc-info {
+      padding: 10px 14px;
+    }
+    .screenshot-card .sc-info .sc-title {
+      font-size: 11px; font-weight: 700; color: var(--dark); margin-bottom: 2px;
+    }
+    .screenshot-card .sc-info .sc-desc {
+      font-size: 9px; color: var(--gray); line-height: 1.4;
+    }
+    /* Mock UI elements inside screenshots */
+    .mock-bar { height: 6px; border-radius: 3px; margin-bottom: 5px; }
+    .mock-pill { display: inline-block; padding: 3px 8px; border-radius: 10px; font-size: 7px; font-weight: 700; margin-right: 3px; }
+
+    /* ══════════════════════════════════════════════ */
+    /* PRINT — Cmd+P → "Save as PDF"                 */
+    /* Each slide becomes a full landscape page.      */
+    /* Set: Landscape, Margins=None, no Headers.      */
+    /* ══════════════════════════════════════════════ */
+    @media print {
+      /* Page setup: landscape A4-ish to match 1080×700 ratio */
+      @page {
+        size: 1080px 700px;
+        margin: 0;
+      }
+
+      /* Reset body for multi-page flow */
+      body {
+        background: #fff !important;
+        overflow: visible !important;
+        height: auto !important;
+        width: 1080px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      /* Hide interactive navigation */
+      .slide-nav { display: none !important; }
+
+      /* Every slide: visible, stacked, one per page */
+      .slide {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+        display: block !important;
+        width: 1080px !important;
+        height: 700px !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        page-break-after: always;
+        break-after: page;
+        overflow: hidden !important;
+      }
+      /* No page break after the last slide */
+      .slide:last-of-type {
+        page-break-after: avoid;
+        break-after: avoid;
+      }
+
+      /* Keep decorative elements but remove animations */
+      .cover-left-dots, .gdot-grid, .left-bullets, .right-deco,
+      .vueling-logo, .airplane-accent, .cover-yellow-bar { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+
+      /* Force background colors & images to print */
+      * {
+        print-color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
+      }
+
+      /* Remove any pulse/blink animations that confuse print */
+      * {
+        animation: none !important;
+        transition: none !important;
+      }
+
+      /* Ensure slide-body content doesn't overflow onto next page */
+      .slide-body {
+        overflow: hidden !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SLIDE 0 — PORTADA                           -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="slide active" id="slide-0">
+    <div class="vueling-logo"><div class="dot"></div><span class="name">Vueling</span></div>
+    <div class="cover-left-dots">
+      <div class="ydot"></div><div class="ydot"></div><div class="ydot"></div><div class="ydot"></div><div class="ydot"></div>
+    </div>
+    <div class="cover-yellow-bar"></div>
+    <div class="gdot-grid">
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+    </div>
+    <!-- Airplane decoration: large rotated plane character -->
+    <div style="position:absolute;right:60px;top:50%;transform:translateY(-50%) rotate(-30deg);font-size:280px;color:#1a1a2e;opacity:0.04;z-index:1;line-height:1;">&#9992;</div>
+    <div class="airplane-accent" style="right:200px;top:160px;"></div>
+    <div class="cover-content">
+      <div class="challenge-label">NextGen Aviation Challenge &middot; 4YFN 2026</div>
+      <h1>Invisible Check-In</h1>
+      <div style="font-size:13px;font-weight:600;color:var(--gray);letter-spacing:0.5px;margin-bottom:10px;">Automated &amp; invisible &mdash; the check-in that does itself</div>
+      <div class="yellow-divider"></div>
+      <p class="subtitle">What if 38 million passengers never had to<br>check in again?</p>
+      <div class="author">
+        <strong>&Aacute;ngel Garc&iacute;a</strong><br>
+        Feb 2026
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="arrow">&#8592;</button>
+      <div class="nav-dots">
+        <div class="nav-dot active" data-slide="0"></div>
+        <div class="nav-dot" data-slide="1"></div>
+        <div class="nav-dot" data-slide="2"></div>
+        <div class="nav-dot" data-slide="3"></div>
+        <div class="nav-dot" data-slide="4"></div>
+        <div class="nav-dot" data-slide="5"></div>
+        <div class="nav-dot" data-slide="6"></div>
+        <div class="nav-dot" data-slide="7"></div>
+      </div>
+      <button class="arrow">&#8594;</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SLIDE 1 — WHAT IS INVISIBLE CHECK-IN        -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="slide content-slide" id="slide-1">
+    <div class="vueling-logo"><div class="dot"></div><span class="name">Vueling</span></div>
+    <div class="left-bullets"><div class="ydot"></div><div class="ydot"></div><div class="ydot"></div></div>
+    <div class="right-deco">
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+    </div>
+
+    <div class="slide-body">
+      <div class="section-label">The Project</div>
+      <h2>Automatic check-in. Zero passenger action.</h2>
+      <p class="lead">
+        An AI-powered pipeline that <strong>proactively checks in every eligible, opted-in passenger</strong> &mdash; documents verified,
+        seat assigned, boarding pass delivered. The trigger window is <strong>fully configurable</strong>: from 15 days before
+        departure (early doc validation) to 48h (final check-in). The passenger does nothing.
+      </p>
+
+      <div class="desc-grid">
+        <div class="desc-card">
+          <div class="dc-title">Proactive, not reactive</div>
+          <div class="dc-text">The pipeline <strong>doesn&rsquo;t wait</strong> for the passenger. Up to 15 days before the flight it validates identity documents and flags expiration issues. At 48h, it executes full automated check-in. No more &ldquo;set an alarm for check-in&rdquo; moments.</div>
+        </div>
+        <div class="desc-card">
+          <div class="dc-title">Smart eligibility &mdash; automate only when safe</div>
+          <div class="dc-text">Not every passenger can be auto-checked in. The pipeline verifies <strong>profile completeness, document status, ticketing, and special service requests</strong> before proceeding. If any gate fails, it falls back gracefully with a clear, actionable message.</div>
+        </div>
+        <div class="desc-card">
+          <div class="dc-title">AI-powered document verification</div>
+          <div class="dc-text">Right after booking, the passenger uploads their identity document. Gemini 2.0 Flash reads passports, DNIs, and ID cards from any country. <strong>Images never stored</strong> &mdash; privacy by design.</div>
+        </div>
+        <div class="desc-card">
+          <div class="dc-title">Under 15 seconds, check-in pipeline end-to-end</div>
+          <div class="dc-text">8 orchestrated stages complete in <strong>&lt;15 seconds</strong> per passenger. Configurable per airline and route. Adapts to domestic, EU, and international flows across IAG.</div>
+        </div>
+      </div>
+
+      <div class="vision-box">
+        <div class="vb-label">The Big Vision &rarr; Decision Engine</div>
+        <div class="vb-text">Invisible Check-In is the <strong>first module</strong> of a broader AI platform we call the Decision Engine &mdash; an orchestration layer that anticipates, decides, and acts before the customer even knows there is something to do.</div>
+        <div class="vision-modules">
+          <div class="vision-mod active">Invisible Check-In</div>
+          <div class="vision-mod">Disruption Manager</div>
+          <div class="vision-mod">Smart upsell &amp; cross-sell</div>
+          <div class="vision-mod">Doc pre-validator</div>
+          <div class="vision-mod">Loyalty activator</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-nav">
+      <button class="arrow">&#8592;</button>
+      <div class="nav-dots">
+        <div class="nav-dot" data-slide="0"></div>
+        <div class="nav-dot active" data-slide="1"></div>
+        <div class="nav-dot" data-slide="2"></div>
+        <div class="nav-dot" data-slide="3"></div>
+        <div class="nav-dot" data-slide="4"></div>
+        <div class="nav-dot" data-slide="5"></div>
+        <div class="nav-dot" data-slide="6"></div>
+        <div class="nav-dot" data-slide="7"></div>
+      </div>
+      <button class="arrow">&#8594;</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SLIDE 2 — THE PROBLEM TODAY                  -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="slide content-slide" id="slide-2">
+    <div class="vueling-logo"><div class="dot"></div><span class="name">Vueling</span></div>
+    <div class="left-bullets"><div class="ydot"></div><div class="ydot"></div><div class="ydot"></div></div>
+    <div class="right-deco">
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+    </div>
+
+    <div class="slide-body">
+      <div class="section-label">The Problem Today</div>
+      <h2>Check-in is a relic. And it costs us.</h2>
+      <p class="lead">
+        Vueling carries <strong>38.2 million passengers a year</strong>. But today, the airline still waits for
+        each one of them to perform a manual check-in &mdash; a process that <strong>adds zero value</strong> and
+        creates operational drag at every level.
+      </p>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="number">11.4M</div>
+          <div class="desc">passengers check in at the <strong>airport counter or kiosk</strong> every year</div>
+          <div style="font-size:8px;color:#9ca3af;margin-top:6px;line-height:1.3;border-top:1px solid #f0f0f0;padding-top:4px;">38.2M pax &times; 30% airport check-in rate<br><em>Source: SITA Passenger IT Insights 2023</em></div>
+        </div>
+        <div class="stat-card">
+          <div class="number">3.2M+</div>
+          <div class="desc"><strong>hours wasted per year</strong> on a task that should take zero seconds</div>
+          <div style="font-size:8px;color:#9ca3af;margin-top:6px;line-height:1.3;border-top:1px solid #f0f0f0;padding-top:4px;">38.2M pax &times; 5 min avg check-in time = 3.2M hrs<br><em>Source: SITA 2023 check-in process times</em></div>
+        </div>
+        <div class="stat-card">
+          <div class="number">60K+</div>
+          <div class="desc">cumulative complaints <strong>linked to check-in friction</strong></div>
+          <div style="font-size:8px;color:#9ca3af;margin-top:6px;line-height:1.3;border-top:1px solid #f0f0f0;padding-top:4px;">Vueling reviews on complaint platforms<br><em>Source: AirAdvisor public data</em></div>
+        </div>
+      </div>
+
+      <ul class="bullet-list" style="margin-top:12px;">
+        <li>Every counter check-in occupies a Vueling agent for <strong>15+ minutes</strong> on a zero-value task</li>
+        <li>&ldquo;I forgot to check in&rdquo; calls <strong>flood the call centre</strong> &mdash; avoidable cases at scale</li>
+        <li>The airline has <strong>no reliable early signal</strong> of who is actually showing up for the flight</li>
+        <li>The model is <strong>reactive</strong> &mdash; we wait for the passenger to act instead of acting for them</li>
+      </ul>
+
+      <p style="font-size:9px;color:#9ca3af;margin-top:auto;">Vueling 2024: 38.2M pax &middot; 3.26B&euro; revenue &middot; 223K flights &middot; 91% load factor &middot; 4th largest LCC in Europe (IAG FY2024, CAPA)</p>
+    </div>
+
+    <div class="slide-nav">
+      <button class="arrow">&#8592;</button>
+      <div class="nav-dots">
+        <div class="nav-dot" data-slide="0"></div>
+        <div class="nav-dot" data-slide="1"></div>
+        <div class="nav-dot active" data-slide="2"></div>
+        <div class="nav-dot" data-slide="3"></div>
+        <div class="nav-dot" data-slide="4"></div>
+        <div class="nav-dot" data-slide="5"></div>
+        <div class="nav-dot" data-slide="6"></div>
+        <div class="nav-dot" data-slide="7"></div>
+      </div>
+      <button class="arrow">&#8594;</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SLIDE 3 — THE OPPORTUNITY & IMPACT           -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="slide content-slide" id="slide-3">
+    <div class="vueling-logo"><div class="dot"></div><span class="name">Vueling</span></div>
+    <div class="left-bullets"><div class="ydot"></div><div class="ydot"></div><div class="ydot"></div></div>
+    <div class="right-deco">
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+    </div>
+
+    <div class="slide-body">
+      <div class="section-label">The Opportunity &amp; Impact</div>
+      <h2>What happens when check-in becomes invisible</h2>
+      <p class="lead">
+        Automating check-in for <strong>eligible passengers</strong> delivers measurable impact across six dimensions.
+        These numbers are conservative estimates at <strong>50% eligible opt-in</strong>.
+      </p>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div style="font-size:8px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">1. Customer time saved</div>
+          <div class="kpi-val">1.6&ndash;3.2M</div>
+          <div class="kpi-unit">hours saved / year</div>
+          <div class="kpi-label">19.1M pax (50% opt-in) &times; 5&ndash;10 min</div>
+          <div style="font-size:7px;color:#b0b0b0;margin-top:2px;"><em>SITA 2023</em></div>
+        </div>
+        <div class="kpi-card">
+          <div style="font-size:8px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">2. Customer satisfaction</div>
+          <div class="kpi-val">+10&ndash;15</div>
+          <div class="kpi-unit">satisfaction points</div>
+          <div class="kpi-label">Top-5 satisfaction driver + stronger app adoption</div>
+          <div style="font-size:7px;color:#b0b0b0;margin-top:2px;"><em>IATA GPS 2024, QuestionPro</em></div>
+        </div>
+        <div class="kpi-card">
+          <div style="font-size:8px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">3. Airport staff efficiency</div>
+          <div class="kpi-val">~30%</div>
+          <div class="kpi-unit">fewer counter agents needed</div>
+          <div class="kpi-label">11.4M &rarr; 3.4&ndash;5.7M counter pax</div>
+          <div style="font-size:7px;color:#b0b0b0;margin-top:2px;"><em>Direct calculation</em></div>
+        </div>
+        <div class="kpi-card">
+          <div style="font-size:8px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">4. Customer care reduction</div>
+          <div class="kpi-val">20&ndash;30%</div>
+          <div class="kpi-unit">fewer support cases</div>
+          <div class="kpi-label">Check-in issues eliminated upstream</div>
+          <div style="font-size:7px;color:#b0b0b0;margin-top:2px;"><em>Industry directional</em></div>
+        </div>
+        <div class="kpi-card">
+          <div style="font-size:8px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">5. Upsell &amp; bags opportunity</div>
+          <div class="kpi-val">+8&ndash;10M&euro;</div>
+          <div class="kpi-unit">potential revenue / year</div>
+          <div class="kpi-label">~10M pax (25&ndash;30%) &times; 3% conv &times; ~30&euro; &mdash; decoupled from check-in pressure</div>
+          <div style="font-size:7px;color:#b0b0b0;margin-top:2px;"><em>IdeaWorksCompany 2024</em></div>
+        </div>
+        <div class="kpi-card">
+          <div style="font-size:8px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">6. Automation efficiency</div>
+          <div class="kpi-val">&lt;15s</div>
+          <div class="kpi-unit">end-to-end pipeline</div>
+          <div class="kpi-label">Full 8-stage automated check-in execution</div>
+          <div style="font-size:7px;color:#b0b0b0;margin-top:2px;"><em>POC measurement</em></div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <div class="privacy-box" style="margin-top:0;flex:1;">
+          <div class="shield">&#x1F4F1;</div>
+          <div>
+            <div class="privacy-label" style="color:var(--dark);">Smarter monetisation, not forced funnels</div>
+            <div class="privacy-desc">Decouples upselling from check-in pressure. Bags, seats, and upgrades are offered <strong>earlier in the journey</strong> (D-7, D-3) with better timing and less resentment. Boarding pass &ldquo;just appears&rdquo; &mdash; driving <strong>app adoption and retention</strong>.</div>
+          </div>
+        </div>
+        <div class="privacy-box" style="margin-top:0;flex:1;background:#fff7ed;border-color:#fed7aa;">
+          <div class="shield" style="background:#ffedd5;">&#x26A0;</div>
+          <div>
+            <div class="privacy-label" style="color:#c2410c;">We know the edge cases &mdash; pilot scoped tight</div>
+            <div class="privacy-desc"><strong>Seat cannibalization</strong>: default random seat + &ldquo;upgrade before check-in&rdquo; prompt. <strong>Coercion risk</strong>: transparent rules, editable results. <strong>Doc/visa exceptions</strong>: graceful fallback. <strong>IRROPS</strong>: automation pauses. <strong>Pilot scope</strong>: single passenger, simple domestic trip, no restrictions &mdash; hardest cases later.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-nav">
+      <button class="arrow">&#8592;</button>
+      <div class="nav-dots">
+        <div class="nav-dot" data-slide="0"></div>
+        <div class="nav-dot" data-slide="1"></div>
+        <div class="nav-dot" data-slide="2"></div>
+        <div class="nav-dot active" data-slide="3"></div>
+        <div class="nav-dot" data-slide="4"></div>
+        <div class="nav-dot" data-slide="5"></div>
+        <div class="nav-dot" data-slide="6"></div>
+        <div class="nav-dot" data-slide="7"></div>
+      </div>
+      <button class="arrow">&#8594;</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SLIDE 4 — THE SOLUTION & FLOWS               -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="slide content-slide" id="slide-4">
+    <div class="vueling-logo"><div class="dot"></div><span class="name">Vueling</span></div>
+    <div class="left-bullets"><div class="ydot"></div><div class="ydot"></div><div class="ydot"></div></div>
+    <div class="right-deco">
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+    </div>
+
+    <div class="slide-body">
+      <div class="section-label">The Solution &middot; How It Works</div>
+      <h2>8 stages. Under 15 seconds. Fully automated.</h2>
+      <p class="lead">
+        The pipeline is <strong>configurable</strong>: early stages (doc validation) can trigger <strong>up to 15 days before departure</strong>,
+        while full check-in executes at 48h. A proactive initiative to help customers before they even think about their trip.
+      </p>
+
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="fs-num">1</div>
+          <div class="fs-title">Booking</div>
+          <div class="fs-desc">Retrieve booking details</div>
+        </div>
+        <div class="flow-step">
+          <div class="fs-num">2</div>
+          <div class="fs-title">Passenger</div>
+          <div class="fs-desc">Passenger details &amp; profile</div>
+        </div>
+        <div class="flow-step" style="border-bottom:2px solid var(--yellow);">
+          <div class="fs-num">3</div>
+          <div class="fs-title">Identity <span style="font-size:8px;">&#x1F916;</span></div>
+          <div class="fs-desc">Doc validation &amp; AI verification</div>
+        </div>
+        <div class="flow-step">
+          <div class="fs-num">4</div>
+          <div class="fs-title">Bags &amp; Seats</div>
+          <div class="fs-desc">Baggage &amp; seat checks</div>
+        </div>
+        <div class="flow-step">
+          <div class="fs-num">5</div>
+          <div class="fs-title">Channels</div>
+          <div class="fs-desc">Comms preferences</div>
+        </div>
+        <div class="flow-step" style="border-bottom:2px solid var(--yellow);">
+          <div class="fs-num">6</div>
+          <div class="fs-title">Check-In <span style="font-size:8px;">&#x1F916;</span></div>
+          <div class="fs-desc">Auto generation</div>
+        </div>
+        <div class="flow-step">
+          <div class="fs-num">7</div>
+          <div class="fs-title">Notify</div>
+          <div class="fs-desc">Check-in done &amp; ready</div>
+        </div>
+        <div class="flow-step" style="border-bottom:2px solid var(--yellow);">
+          <div class="fs-num">8</div>
+          <div class="fs-title">AI Nudge <span style="font-size:8px;">&#x1F916;</span></div>
+          <div class="fs-desc">Upsell, upgrade or alert</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:10px;">
+        <div style="flex:1;">
+          <div style="font-size:8px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">&#x2713; Built in the POC</div>
+          <ul class="bullet-list" style="margin-top:0;">
+            <li><strong>Full 8-stage pipeline</strong> &mdash; booking &rarr; identity AI &rarr; check-in &rarr; boarding pass &rarr; AI nudge</li>
+            <li><strong>AI document verification</strong> &mdash; real Gemini 2.0 Flash reading passports and DNIs</li>
+            <li><strong>Contextual AI nudge</strong> &mdash; configurable LLM prompts with passenger context (destination, trip, language)</li>
+          </ul>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:8px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">&#x25B6; Vision for production</div>
+          <ul class="bullet-list" style="margin-top:0;">
+            <li><strong>D-15</strong> &mdash; early doc validation catches expired passports, missing visas proactively</li>
+            <li><strong>D-7 / D-3</strong> &mdash; decoupled upsell window: bags, seats, upgrades before check-in</li>
+            <li><strong>D-2 (48h)</strong> &mdash; pipeline for <strong>eligible passengers</strong>: profile complete, docs clean, no blocking SSR</li>
+            <li><strong>Fallback</strong> &mdash; clear, actionable notification if any eligibility gate fails</li>
+          </ul>
+        </div>
+      </div>
+
+      <p style="font-size:9px;color:#9ca3af;margin-top:auto;">Powered by Google Gemini 2.0 Flash &middot; All executions logged and observable &middot; Full audit trail for ops teams</p>
+    </div>
+
+    <div class="slide-nav">
+      <button class="arrow">&#8592;</button>
+      <div class="nav-dots">
+        <div class="nav-dot" data-slide="0"></div>
+        <div class="nav-dot" data-slide="1"></div>
+        <div class="nav-dot" data-slide="2"></div>
+        <div class="nav-dot" data-slide="3"></div>
+        <div class="nav-dot active" data-slide="4"></div>
+        <div class="nav-dot" data-slide="5"></div>
+        <div class="nav-dot" data-slide="6"></div>
+        <div class="nav-dot" data-slide="7"></div>
+      </div>
+      <button class="arrow">&#8594;</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SLIDE 5 — LIVE POC & ROADMAP                 -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="slide content-slide" id="slide-5">
+    <div class="vueling-logo"><div class="dot"></div><span class="name">Vueling</span></div>
+    <div class="left-bullets"><div class="ydot"></div><div class="ydot"></div><div class="ydot"></div></div>
+    <div class="right-deco">
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+    </div>
+
+    <div class="slide-body">
+      <div class="section-label">Live POC &amp; Next Steps</div>
+      <h2>It&rsquo;s not a concept. It&rsquo;s running.</h2>
+      <p class="lead">
+        The core pipeline is <strong>built and running today</strong>: AI document verification, boarding pass generation,
+        and contextual AI nudges with configurable LLM prompts. Here&rsquo;s what&rsquo;s live &mdash; and the path to production.
+      </p>
+
+      <div class="two-col">
+        <!-- Left: POC screens -->
+        <div>
+          <div class="col-label">What the POC does today</div>
+
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;margin-bottom:6px;">
+            <div style="width:28px;height:28px;border-radius:8px;background:rgba(255,209,0,0.15);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">&#x1F3AC;</div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--dark);">Live pipeline demo</div>
+              <div style="font-size:9px;color:var(--gray);line-height:1.4;margin-top:2px;">Select a passenger, watch all 8 stages execute in real time. Data flows visually through each stage with live status updates.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;margin-bottom:6px;">
+            <div style="width:28px;height:28px;border-radius:8px;background:rgba(255,209,0,0.15);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">&#x1F4C4;</div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--dark);">AI document verification (file upload)</div>
+              <div style="font-size:9px;color:var(--gray);line-height:1.4;margin-top:2px;">Upload a passport or DNI file. Gemini 2.0 Flash extracts data in real time. Image discarded immediately &mdash; privacy in action.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;margin-bottom:6px;">
+            <div style="width:28px;height:28px;border-radius:8px;background:rgba(255,209,0,0.15);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">&#x1F3AB;</div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--dark);">Boarding pass &amp; configurable AI nudge</div>
+              <div style="font-size:9px;color:var(--gray);line-height:1.4;margin-top:2px;">Full boarding pass with QR. AI nudge powered by <strong>configurable LLM prompts</strong> &mdash; Gemini receives passenger context (destination, trip days, language) and generates contextual bag/seat suggestions. Prompts are template-based and editable.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;">
+            <div style="width:28px;height:28px;border-radius:8px;background:rgba(255,209,0,0.15);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">&#x1F4CA;</div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--dark);">Orchestration dashboard</div>
+              <div style="font-size:9px;color:var(--gray);line-height:1.4;margin-top:2px;">Full technical view: every stage timed, logged, and observable. Built for ops teams to monitor pipeline health at scale.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Roadmap -->
+        <div>
+          <div class="col-label">Roadmap</div>
+          <div class="rm-row active">
+            <div class="rm-pulse"></div>
+            <div>
+              <div class="rm-phase">POC &mdash; Live</div>
+              <div class="rm-detail">4YFN / MWC 2026. Full E2E pipeline. Doc upload + AI verification. Boarding pass + AI nudge.</div>
+            </div>
+            <span class="rm-time">Now</span>
+          </div>
+          <div class="rm-row">
+            <div style="width:6px"></div>
+            <div>
+              <div class="rm-phase">Pilot &mdash; 5 domestic routes</div>
+              <div class="rm-detail">Identity capture, smart eligibility gate, boarding pass, AI nudge. Real DCS. IRROPS fallback handling.</div>
+            </div>
+            <span class="rm-time">Q3 2026</span>
+          </div>
+          <div class="rm-row">
+            <div style="width:6px"></div>
+            <div>
+              <div class="rm-phase">Camera scan + domestic scale</div>
+              <div class="rm-detail">Real-time device camera scanning. Decoupled upsell engine (D-7/D-3). All Spanish domestic routes.</div>
+            </div>
+            <span class="rm-time">Q3+ 2026</span>
+          </div>
+          <div class="rm-row">
+            <div style="width:6px"></div>
+            <div>
+              <div class="rm-phase">International &amp; IAG</div>
+              <div class="rm-detail">EU routes. Multi-leg &amp; partner airlines. Decision Engine modules. IATA One ID integration.</div>
+            </div>
+            <span class="rm-time">2027</span>
+          </div>
+
+          <div style="margin-top:12px;padding:10px 14px;background:linear-gradient(135deg,#1a1a2e,#111827);border-radius:10px;">
+            <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--yellow);font-weight:700;margin-bottom:4px;">Tech stack</div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;">
+              <span style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.08);color:#d1d5db;font-weight:600;">Next.js</span>
+              <span style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.08);color:#d1d5db;font-weight:600;">TypeScript</span>
+              <span style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.08);color:#d1d5db;font-weight:600;">Gemini 2.0 Flash</span>
+              <span style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.08);color:#d1d5db;font-weight:600;">Tailwind CSS</span>
+              <span style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.08);color:#d1d5db;font-weight:600;">REST API</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p style="font-size:9px;color:#9ca3af;margin-top:auto;">Sources: IAG FY2024 &middot; SITA 2023 &middot; IATA GPS 2024 &middot; IdeaWorksCompany &middot; CAPA</p>
+    </div>
+
+    <div class="slide-nav">
+      <button class="arrow">&#8592;</button>
+      <div class="nav-dots">
+        <div class="nav-dot" data-slide="0"></div>
+        <div class="nav-dot" data-slide="1"></div>
+        <div class="nav-dot" data-slide="2"></div>
+        <div class="nav-dot" data-slide="3"></div>
+        <div class="nav-dot" data-slide="4"></div>
+        <div class="nav-dot active" data-slide="5"></div>
+        <div class="nav-dot" data-slide="6"></div>
+        <div class="nav-dot" data-slide="7"></div>
+      </div>
+      <button class="arrow">&#8594;</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SLIDE 6 — POC: PASSENGER ONBOARDING FLOW    -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="slide content-slide" id="slide-6">
+    <div class="vueling-logo"><div class="dot"></div><span class="name">Vueling</span></div>
+    <div class="left-bullets"><div class="ydot"></div><div class="ydot"></div><div class="ydot"></div></div>
+    <div class="right-deco">
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+    </div>
+
+    <div class="slide-body" style="top:62px;bottom:52px;">
+      <div class="section-label" style="margin-bottom:4px;">POC in Action &mdash; Passenger Onboarding</div>
+      <h2 style="font-size:24px;margin-bottom:3px;">From booking to verified &mdash; four screens, zero friction.</h2>
+      <p class="lead" style="margin-bottom:8px;font-size:12px;">
+        Right after booking: <strong>opt-in, delivery preference, document upload, and AI verification</strong>. Four real screens from the running POC.
+      </p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;flex:1;min-height:0;">
+
+        <!-- Screenshot 1: Booking confirmed + opt-in -->
+        <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;display:flex;flex-direction:column;min-height:0;">
+          <div style="flex:1;background:#fff;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;padding:8px 10px;overflow:hidden;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);font-size:20px;font-weight:800;color:rgba(0,0,0,0.03);text-transform:uppercase;letter-spacing:4px;white-space:nowrap;pointer-events:none;z-index:1;">Vueling POC</div>
+            <div style="width:100%;z-index:2;">
+              <div style="text-align:center;margin-bottom:4px;">
+                <div style="width:24px;height:24px;border-radius:50%;background:#dcfce7;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;">
+                  <div style="width:16px;height:16px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-weight:700;">&#10003;</div>
+                </div>
+                <div style="font-size:10px;font-weight:800;color:var(--dark);">Booking Confirmed!</div>
+                <div style="font-size:7px;color:var(--gray);">VY1234 &middot; BCN &rarr; FCO &middot; Mar 15</div>
+              </div>
+              <div style="background:#f9fafb;border-radius:5px;padding:3px 6px;text-align:center;margin-bottom:4px;">
+                <div style="font-size:5.5px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;">Booking Ref</div>
+                <div style="font-size:11px;font-weight:800;color:var(--dark);letter-spacing:2px;font-family:monospace;">VY-M2026A</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="font-size:7px;font-weight:700;color:var(--dark);margin-bottom:2px;">Want us to check you in automatically?</div>
+                <div style="background:var(--yellow);color:var(--dark);font-size:7px;font-weight:800;padding:4px 10px;border-radius:6px;display:inline-block;">Yes, check me in automatically &#10003;</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:5px 8px;border-top:1px solid #f0f0f0;">
+            <div style="font-size:9px;font-weight:700;color:var(--dark);">1. Booking confirmed &amp; opt-in</div>
+            <div style="font-size:7px;color:var(--gray);">One-tap auto check-in opt-in</div>
+          </div>
+        </div>
+
+        <!-- Screenshot 2: Delivery channel selection -->
+        <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;display:flex;flex-direction:column;min-height:0;">
+          <div style="flex:1;background:#fff;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;padding:8px 10px;overflow:hidden;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);font-size:20px;font-weight:800;color:rgba(0,0,0,0.03);text-transform:uppercase;letter-spacing:4px;white-space:nowrap;pointer-events:none;z-index:1;">Vueling POC</div>
+            <div style="width:100%;z-index:2;">
+              <div style="display:flex;align-items:center;gap:3px;margin-bottom:4px;">
+                <div style="width:14px;height:14px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:var(--dark);">1</div>
+                <div style="width:10px;height:2px;background:var(--yellow);"></div>
+                <div style="width:14px;height:14px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:var(--gray);">2</div>
+              </div>
+              <div style="font-size:9px;font-weight:800;color:var(--dark);margin-bottom:4px;">How should we send your boarding pass?</div>
+              <div style="display:flex;flex-direction:column;gap:3px;">
+                <div style="display:flex;align-items:center;gap:5px;padding:4px 6px;border-radius:6px;border:2px solid var(--yellow);background:rgba(255,209,0,0.05);">
+                  <div style="width:16px;height:16px;border-radius:4px;background:rgba(255,209,0,0.2);display:flex;align-items:center;justify-content:center;font-size:8px;">&#x2709;</div>
+                  <div style="flex:1;font-size:7px;font-weight:700;color:var(--dark);">Email</div>
+                  <div style="width:10px;height:10px;border-radius:2px;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:6px;color:var(--dark);font-weight:700;">&#10003;</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;padding:4px 6px;border-radius:6px;border:2px solid #e5e7eb;">
+                  <div style="width:16px;height:16px;border-radius:4px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:8px;">&#x1F4AC;</div>
+                  <div style="flex:1;font-size:7px;font-weight:700;color:var(--dark);">SMS</div>
+                  <div style="width:10px;height:10px;border-radius:2px;border:2px solid #d1d5db;"></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;padding:4px 6px;border-radius:6px;border:2px solid var(--yellow);background:rgba(255,209,0,0.05);">
+                  <div style="width:16px;height:16px;border-radius:4px;background:rgba(255,209,0,0.2);display:flex;align-items:center;justify-content:center;font-size:8px;">&#x1F514;</div>
+                  <div style="flex:1;font-size:7px;font-weight:700;color:var(--dark);">Push Notification</div>
+                  <div style="width:10px;height:10px;border-radius:2px;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:6px;color:var(--dark);font-weight:700;">&#10003;</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;padding:4px 6px;border-radius:6px;border:2px solid #e5e7eb;">
+                  <div style="width:16px;height:16px;border-radius:4px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:8px;">&#x1F4F1;</div>
+                  <div style="flex:1;font-size:7px;font-weight:700;color:var(--dark);">Vueling App</div>
+                  <div style="width:10px;height:10px;border-radius:2px;border:2px solid #d1d5db;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:5px 8px;border-top:1px solid #f0f0f0;">
+            <div style="font-size:9px;font-weight:700;color:var(--dark);">2. Delivery channel selection</div>
+            <div style="font-size:7px;color:var(--gray);">Email, SMS, push, or in-app wallet</div>
+          </div>
+        </div>
+
+        <!-- Screenshot 3: Document upload / scan -->
+        <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;display:flex;flex-direction:column;min-height:0;">
+          <div style="flex:1;background:#fff;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;padding:8px 10px;overflow:hidden;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);font-size:20px;font-weight:800;color:rgba(0,0,0,0.03);text-transform:uppercase;letter-spacing:4px;white-space:nowrap;pointer-events:none;z-index:1;">Vueling POC</div>
+            <div style="width:100%;z-index:2;">
+              <div style="display:flex;align-items:center;gap:3px;margin-bottom:4px;">
+                <div style="width:14px;height:14px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:6px;color:var(--dark);font-weight:700;">&#10003;</div>
+                <div style="width:10px;height:2px;background:var(--yellow);"></div>
+                <div style="width:14px;height:14px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:var(--dark);">2</div>
+              </div>
+              <div style="font-size:9px;font-weight:800;color:var(--dark);margin-bottom:1px;">Your travel document</div>
+              <div style="font-size:6.5px;color:var(--gray);margin-bottom:6px;">Passport or national ID &mdash; AI extracts the details</div>
+              <div style="border:2px dashed #e5e7eb;border-radius:7px;padding:8px;text-align:center;margin-bottom:5px;background:#fafafa;">
+                <div style="width:22px;height:22px;border-radius:6px;background:rgba(255,209,0,0.15);margin:0 auto 3px;display:flex;align-items:center;justify-content:center;font-size:10px;">&#x1F4F7;</div>
+                <div style="font-size:7px;font-weight:700;color:var(--dark);">Scan from photo</div>
+                <div style="font-size:6px;color:var(--gray);">Upload or take a photo</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                <div style="flex:1;height:1px;background:#e5e7eb;"></div>
+                <div style="font-size:6px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;">or</div>
+                <div style="flex:1;height:1px;background:#e5e7eb;"></div>
+              </div>
+              <div style="border:2px dashed #e5e7eb;border-radius:7px;padding:6px 8px;text-align:center;">
+                <div style="font-size:7px;font-weight:700;color:var(--dark);">&#x270F; Enter manually</div>
+                <div style="font-size:6px;color:var(--gray);">Type passport number &amp; expiry</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:5px 8px;border-top:1px solid #f0f0f0;">
+            <div style="font-size:9px;font-weight:700;color:var(--dark);">3. Document upload or scan</div>
+            <div style="font-size:7px;color:var(--gray);">Photo upload, camera, or manual entry</div>
+          </div>
+        </div>
+
+        <!-- Screenshot 4: AI verification result — extracted data -->
+        <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;display:flex;flex-direction:column;min-height:0;">
+          <div style="flex:1;background:#fff;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;padding:8px 10px;overflow:hidden;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);font-size:20px;font-weight:800;color:rgba(0,0,0,0.03);text-transform:uppercase;letter-spacing:4px;white-space:nowrap;pointer-events:none;z-index:1;">Vueling POC</div>
+            <div style="width:100%;z-index:2;">
+              <div style="display:flex;align-items:center;gap:5px;padding:5px 8px;border-radius:6px;background:#f0fdf4;border:1px solid #bbf7d0;margin-bottom:6px;">
+                <div style="width:16px;height:16px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:8px;font-weight:700;">&#10003;</div>
+                <div style="font-size:7px;font-weight:700;color:#166534;">Document verified &mdash; all fields extracted</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:2px;">
+                <div style="display:flex;justify-content:space-between;padding:3px 6px;background:#f9fafb;border-radius:3px;">
+                  <div style="font-size:6.5px;color:var(--gray);font-family:monospace;text-transform:uppercase;">Full name</div>
+                  <div style="font-size:7px;font-weight:700;color:var(--dark);">GARC&Iacute;A L&Oacute;PEZ, MAR&Iacute;A</div>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:3px 6px;background:#f9fafb;border-radius:3px;">
+                  <div style="font-size:6.5px;color:var(--gray);font-family:monospace;text-transform:uppercase;">Passport no.</div>
+                  <div style="font-size:7px;font-weight:700;color:var(--dark);font-family:monospace;">PAA123456</div>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:3px 6px;background:#f9fafb;border-radius:3px;">
+                  <div style="font-size:6.5px;color:var(--gray);font-family:monospace;text-transform:uppercase;">Nationality</div>
+                  <div style="font-size:7px;font-weight:700;color:var(--dark);">ESP</div>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:3px 6px;background:#f9fafb;border-radius:3px;">
+                  <div style="font-size:6.5px;color:var(--gray);font-family:monospace;text-transform:uppercase;">Date of birth</div>
+                  <div style="font-size:7px;font-weight:700;color:var(--dark);">1990-05-14</div>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:3px 6px;background:#f9fafb;border-radius:3px;">
+                  <div style="font-size:6.5px;color:var(--gray);font-family:monospace;text-transform:uppercase;">Expiry date</div>
+                  <div style="font-size:7px;font-weight:700;color:var(--dark);">2027-08-22</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:5px;margin-top:6px;">
+                <div style="flex:1;text-align:center;padding:4px;border:1px solid #e5e7eb;border-radius:5px;font-size:6.5px;font-weight:600;color:var(--gray);">Re-scan</div>
+                <div style="flex:1;text-align:center;padding:4px;background:var(--yellow);border-radius:5px;font-size:6.5px;font-weight:800;color:var(--dark);">Confirm &amp; Continue &#10003;</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:5px 8px;border-top:1px solid #f0f0f0;">
+            <div style="font-size:9px;font-weight:700;color:var(--dark);">4. AI-verified document data</div>
+            <div style="font-size:7px;color:var(--gray);">Gemini 2.0 Flash extracts fields in real time</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="slide-nav">
+      <button class="arrow">&#8592;</button>
+      <div class="nav-dots">
+        <div class="nav-dot" data-slide="0"></div>
+        <div class="nav-dot" data-slide="1"></div>
+        <div class="nav-dot" data-slide="2"></div>
+        <div class="nav-dot" data-slide="3"></div>
+        <div class="nav-dot" data-slide="4"></div>
+        <div class="nav-dot" data-slide="5"></div>
+        <div class="nav-dot active" data-slide="6"></div>
+        <div class="nav-dot" data-slide="7"></div>
+      </div>
+      <button class="arrow">&#8594;</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SLIDE 7 — POC: PIPELINE & RESULT             -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="slide content-slide" id="slide-7">
+    <div class="vueling-logo"><div class="dot"></div><span class="name">Vueling</span></div>
+    <div class="left-bullets"><div class="ydot"></div><div class="ydot"></div><div class="ydot"></div></div>
+    <div class="right-deco">
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+      <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
+    </div>
+
+    <div class="slide-body">
+      <div class="section-label">POC in Action &mdash; The Engine</div>
+      <h2>8 stages. Real AI. Under 15 seconds.</h2>
+      <p class="lead" style="margin-bottom:14px;">
+        The orchestration pipeline runs all 8 stages automatically. AI verifies documents and generates contextual nudges.
+        Every stage is timed, logged, and observable &mdash; <strong>real code, real API calls to Gemini 2.0 Flash</strong>.
+      </p>
+
+      <div class="screenshot-grid">
+        <!-- Screenshot 3: Pipeline Running -->
+        <div class="screenshot-card">
+          <div class="sc-preview" style="background:linear-gradient(180deg,#0f172a,#1e293b);padding:16px;">
+            <div class="sc-watermark">Vueling POC</div>
+            <div style="width:100%;z-index:2;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                <div style="width:10px;height:10px;background:var(--yellow);border-radius:50%;"></div>
+                <div style="font-size:10px;color:#fff;font-weight:700;">Pipeline executing...</div>
+                <div style="margin-left:auto;font-size:8px;color:var(--yellow);font-weight:600;">12.4s</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:rgba(16,185,129,0.1);border-radius:5px;">
+                  <div style="font-size:7px;color:#10b981;font-weight:700;width:14px;">&#10003;</div>
+                  <div style="font-size:8px;color:#fff;font-weight:600;flex:1;">Booking lookup</div>
+                  <div style="font-size:7px;color:#9ca3af;">1.2s</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:rgba(16,185,129,0.1);border-radius:5px;">
+                  <div style="font-size:7px;color:#10b981;font-weight:700;width:14px;">&#10003;</div>
+                  <div style="font-size:8px;color:#fff;font-weight:600;flex:1;">Passenger details</div>
+                  <div style="font-size:7px;color:#9ca3af;">0.8s</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:rgba(16,185,129,0.1);border-radius:5px;">
+                  <div style="font-size:7px;color:#10b981;font-weight:700;width:14px;">&#10003;</div>
+                  <div style="font-size:8px;color:#fff;font-weight:600;flex:1;">Identity verification &#x1F916;</div>
+                  <div style="font-size:7px;color:#9ca3af;">3.1s</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:rgba(16,185,129,0.1);border-radius:5px;">
+                  <div style="font-size:7px;color:#10b981;font-weight:700;width:14px;">&#10003;</div>
+                  <div style="font-size:8px;color:#fff;font-weight:600;flex:1;">Bags &amp; seats</div>
+                  <div style="font-size:7px;color:#9ca3af;">0.5s</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:rgba(16,185,129,0.1);border-radius:5px;">
+                  <div style="font-size:7px;color:#10b981;font-weight:700;width:14px;">&#10003;</div>
+                  <div style="font-size:8px;color:#fff;font-weight:600;flex:1;">Channel prefs</div>
+                  <div style="font-size:7px;color:#9ca3af;">0.3s</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:rgba(255,209,0,0.1);border-radius:5px;">
+                  <div style="font-size:7px;color:var(--yellow);font-weight:700;width:14px;">&#9679;</div>
+                  <div style="font-size:8px;color:#fff;font-weight:600;flex:1;">Check-in generation &#x1F916;</div>
+                  <div style="font-size:7px;color:var(--yellow);">running</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:rgba(255,255,255,0.03);border-radius:5px;">
+                  <div style="font-size:7px;color:#4b5563;font-weight:700;width:14px;">&#9675;</div>
+                  <div style="font-size:8px;color:#6b7280;flex:1;">Notify</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:rgba(255,255,255,0.03);border-radius:5px;">
+                  <div style="font-size:7px;color:#4b5563;font-weight:700;width:14px;">&#9675;</div>
+                  <div style="font-size:8px;color:#6b7280;flex:1;">AI nudge &#x1F916;</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="sc-info">
+            <div class="sc-title">3. Live pipeline execution</div>
+            <div class="sc-desc">All 8 stages run in real time. Each stage shows live status, execution time, and data flowing through. AI stages call Gemini 2.0 Flash in real time.</div>
+          </div>
+        </div>
+
+        <!-- Screenshot 4: Boarding Pass + AI Nudge -->
+        <div class="screenshot-card">
+          <div class="sc-preview" style="background:linear-gradient(180deg,#0f172a,#1e293b);padding:16px;">
+            <div class="sc-watermark">Vueling POC</div>
+            <div style="width:100%;z-index:2;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                <div style="width:10px;height:10px;background:#10b981;border-radius:50%;"></div>
+                <div style="font-size:10px;color:#fff;font-weight:700;">Check-in complete</div>
+                <div style="margin-left:auto;font-size:8px;color:#10b981;font-weight:600;">&#10003; 12.4s total</div>
+              </div>
+              <div style="background:#fff;border-radius:8px;padding:10px;margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                  <div>
+                    <div style="display:flex;align-items:center;gap:4px;margin-bottom:6px;">
+                      <div style="width:8px;height:8px;background:var(--yellow);border-radius:50%;"></div>
+                      <span style="font-size:8px;font-weight:700;color:var(--dark);">Vueling</span>
+                    </div>
+                    <div style="font-size:7px;color:#9ca3af;">Passenger</div>
+                    <div style="font-size:10px;color:var(--dark);font-weight:700;">Mar&iacute;a Garc&iacute;a</div>
+                    <div style="display:flex;gap:12px;margin-top:6px;">
+                      <div><div style="font-size:6px;color:#9ca3af;">Flight</div><div style="font-size:9px;color:var(--dark);font-weight:700;">VY1234</div></div>
+                      <div><div style="font-size:6px;color:#9ca3af;">Seat</div><div style="font-size:9px;color:var(--dark);font-weight:700;">14A</div></div>
+                      <div><div style="font-size:6px;color:#9ca3af;">Gate</div><div style="font-size:9px;color:var(--dark);font-weight:700;">B22</div></div>
+                    </div>
+                  </div>
+                  <div style="width:48px;height:48px;background:var(--dark);border-radius:4px;display:grid;grid-template-columns:repeat(6,1fr);gap:1px;padding:4px;">
+                    <div style="background:#fff;border-radius:1px;"></div><div style="background:var(--dark);"></div><div style="background:#fff;border-radius:1px;"></div><div style="background:#fff;border-radius:1px;"></div><div style="background:var(--dark);"></div><div style="background:#fff;border-radius:1px;"></div>
+                    <div style="background:var(--dark);"></div><div style="background:#fff;border-radius:1px;"></div><div style="background:var(--dark);"></div><div style="background:#fff;border-radius:1px;"></div><div style="background:#fff;border-radius:1px;"></div><div style="background:var(--dark);"></div>
+                    <div style="background:#fff;border-radius:1px;"></div><div style="background:#fff;border-radius:1px;"></div><div style="background:var(--dark);"></div><div style="background:var(--dark);"></div><div style="background:#fff;border-radius:1px;"></div><div style="background:#fff;border-radius:1px;"></div>
+                    <div style="background:var(--dark);"></div><div style="background:var(--dark);"></div><div style="background:#fff;border-radius:1px;"></div><div style="background:#fff;border-radius:1px;"></div><div style="background:var(--dark);"></div><div style="background:var(--dark);"></div>
+                    <div style="background:#fff;border-radius:1px;"></div><div style="background:var(--dark);"></div><div style="background:#fff;border-radius:1px;"></div><div style="background:var(--dark);"></div><div style="background:#fff;border-radius:1px;"></div><div style="background:var(--dark);"></div>
+                    <div style="background:var(--dark);"></div><div style="background:#fff;border-radius:1px;"></div><div style="background:var(--dark);"></div><div style="background:#fff;border-radius:1px;"></div><div style="background:var(--dark);"></div><div style="background:#fff;border-radius:1px;"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="background:rgba(255,209,0,0.08);border:1px solid rgba(255,209,0,0.2);border-radius:6px;padding:8px;">
+                <div style="font-size:7px;color:var(--yellow);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">&#x2728; AI nudge &mdash; configurable LLM prompt</div>
+                <div style="font-size:8px;color:#d1d5db;line-height:1.4;">&ldquo;Mar&iacute;a, your check-in is done! Flying light? Add a 20kg bag for just 29&euro; and skip the airport queue.&rdquo;</div>
+                <div style="font-size:6px;color:#6b7280;margin-top:4px;">Context: destination=FCO, trip_days=5, language=es &middot; Prompt template editable</div>
+              </div>
+            </div>
+          </div>
+          <div class="sc-info">
+            <div class="sc-title">4. Boarding pass &amp; AI nudge</div>
+            <div class="sc-desc">Full boarding pass with QR code. AI nudge generated by Gemini using configurable prompts with real passenger context (destination, trip, language).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-nav">
+      <button class="arrow">&#8592;</button>
+      <div class="nav-dots">
+        <div class="nav-dot" data-slide="0"></div>
+        <div class="nav-dot" data-slide="1"></div>
+        <div class="nav-dot" data-slide="2"></div>
+        <div class="nav-dot" data-slide="3"></div>
+        <div class="nav-dot" data-slide="4"></div>
+        <div class="nav-dot" data-slide="5"></div>
+        <div class="nav-dot" data-slide="6"></div>
+        <div class="nav-dot active" data-slide="7"></div>
+      </div>
+      <button class="arrow">&#8594;</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- JavaScript                                   -->
+  <!-- ═══════════════════════════════════════════ -->
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const allDots = document.querySelectorAll('.nav-dot');
+    const totalSlides = slides.length;
+    let current = 0;
+
+    function goTo(n) {
+      if (n < 0 || n >= totalSlides) return;
+      slides[current].classList.remove('active');
+      current = n;
+      slides[current].classList.add('active');
+      allDots.forEach(d => d.classList.toggle('active', +d.dataset.slide === current));
+    }
+
+    document.addEventListener('click', (e) => {
+      const arrow = e.target.closest('.arrow');
+      const dot = e.target.closest('.nav-dot');
+      if (arrow) {
+        const t = arrow.textContent.trim();
+        if (t === '\u2190') goTo(current - 1);
+        if (t === '\u2192') goTo(current + 1);
+      }
+      if (dot) goTo(+dot.dataset.slide);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+      if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+      if (e.key === 'End') { e.preventDefault(); goTo(totalSlides - 1); }
+    });
+  </script>
+</body>
+</html>

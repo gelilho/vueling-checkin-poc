@@ -355,7 +355,7 @@ export default function OnboardingFlow() {
       </div>
 
       <h1 className="text-xl font-bold text-vueling-dark mb-2">You&apos;re all set!</h1>
-      <p className="text-sm text-vueling-gray mb-6 leading-relaxed max-w-[280px]">
+      <p className="text-sm text-vueling-gray mb-6 leading-relaxed max-w-sm">
         {documentData
           ? "Your document is verified. We'll check you in automatically 48h before departure."
           : "Auto check-in is enabled. Don't forget to add your document later for a seamless experience."}

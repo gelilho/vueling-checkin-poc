@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} antialiased bg-white min-h-screen`}>
-        <div className="mx-auto max-w-md min-h-screen flex flex-col">
+        <div className="mx-auto max-w-xl min-h-screen flex flex-col">
           {/* Header */}
           <header className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <div className="flex items-center gap-2">

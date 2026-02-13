@@ -207,7 +207,7 @@ export default function OrchestrationDashboard({ onReset }: Props) {
 
   return (
     <div className="min-h-screen bg-vueling-light">
-      <div className="max-w-lg mx-auto px-4 py-6">
+      <div className="mx-auto px-4 py-6">
         {/* Hero */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-2 bg-vueling-yellow/20 text-vueling-dark px-3 py-1 rounded-full text-xs font-semibold mb-3">

@@ -3,7 +3,7 @@
  */
 
 export { executeChannels } from "./channels";
-export { executeScanMocked, executeScanLive } from "./scan";
+export { executeScanMocked } from "./scan";
 export { executeCheckin } from "./checkin";
 export { executeDelivery } from "./delivery";
 
