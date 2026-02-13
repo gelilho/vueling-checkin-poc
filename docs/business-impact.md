@@ -4,6 +4,34 @@
 
 ---
 
+## The Bigger Picture: Decision Engine
+
+Invisible Check-In is the **first module** of a broader platform: the **Decision Engine**.
+
+The Decision Engine is an AI-powered orchestration layer that sits between airline systems and passengers. It continuously monitors data signals — bookings, document status, flight changes, weather, passenger behaviour — and **decides when and how to act** on behalf of the customer, before the customer even knows there is something to do.
+
+### Decision Engine Modules
+
+| Module | Trigger | Action | Status |
+|--------|---------|--------|--------|
+| **Invisible Check-In** | 48h before departure | Auto check-in + boarding pass delivery | POC (this project) |
+| Disruption Manager | Flight delay / cancellation detected | Proactive rebooking + comms | Planned |
+| Smart Upsell | Booking profile + trip context | Contextual ancillary offers at the right moment | Planned |
+| Document Pre-Validator | Booking confirmed for international route | Verify docs meet destination requirements early | Planned |
+| Loyalty Activator | Passenger behaviour patterns | Targeted retention offers before churn | Planned |
+
+### Why a Decision Engine?
+
+Airlines today are **reactive** — they wait for the passenger to act (check in, call support, complain). The Decision Engine flips this model: it **anticipates** what needs to happen and executes automatically.
+
+- **For the passenger**: friction disappears. Things just work.
+- **For the airline**: lower ops cost, higher NPS, more ancillary revenue, fewer support cases.
+- **For IAG**: one platform, multiple airlines, shared intelligence.
+
+Invisible Check-In proves the architecture. The same pipeline engine, stage-based orchestration, and AI integration pattern scale to every module above.
+
+---
+
 ## Vueling at a Glance (2024)
 
 | Metric | Value | Source |

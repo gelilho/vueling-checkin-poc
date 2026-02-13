@@ -155,6 +155,34 @@
     .pipeline-label { font-size: 10px; font-weight: 500; color: var(--dark); white-space: nowrap; }
     .pipeline-arrow { color: #d1d5db; font-size: 11px; }
 
+    /* ── Decision Engine Box ── */
+    .de-box {
+      padding: 16px 20px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #fff;
+      margin-bottom: 24px;
+    }
+    .de-box .section-title { color: #fff; }
+    .de-box .section-title::before { background: var(--yellow); }
+    .de-box p { font-size: 11px; color: #9ca3af; line-height: 1.5; margin-bottom: 10px; }
+    .de-modules { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .de-mod {
+      padding: 8px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+    }
+    .de-mod.active {
+      background: rgba(255,209,0,0.1);
+      border-color: rgba(255,209,0,0.3);
+    }
+    .de-mod-icon { font-size: 14px; margin-bottom: 2px; }
+    .de-mod-name { font-size: 8px; font-weight: 600; color: #fff; }
+    .de-mod-status { font-size: 7px; color: #6b7280; margin-top: 1px; }
+    .de-mod.active .de-mod-status { color: var(--yellow); }
+
     /* ── Privacy Box ── */
     .privacy-box {
       display: flex;
@@ -260,8 +288,9 @@
 
     <!-- HERO -->
     <div class="hero">
+      <p style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#6b7280;margin-bottom:6px">Decision Engine &middot; Module 1</p>
       <h2>What if check-in just&hellip; disappeared?</h2>
-      <p>Automatic check-in 48 hours before departure. Zero passenger action. Boarding pass delivered to their preferred channel. 8 AI-powered stages, completed in under 15 seconds.</p>
+      <p>Invisible Check-In is the first module of the <strong style="color:#fff">Decision Engine</strong> &mdash; an AI platform that monitors data signals and decides when and how to act on behalf of the customer, before they even know there is something to do. This module: automatic check-in 48h before departure. Zero passenger action. 8 stages, under 15 seconds.</p>
       <div class="hero-stats">
         <div class="hero-stat"><div class="val">38.2M</div><div class="lbl">pax / year</div></div>
         <div class="hero-stat"><div class="val">&euro;3.26B</div><div class="lbl">revenue</div></div>
@@ -342,6 +371,39 @@
       <div class="pipeline-step"><div class="pipeline-num">6</div><span class="pipeline-label">Auto Check-In</span></div><span class="pipeline-arrow">&rarr;</span>
       <div class="pipeline-step"><div class="pipeline-num">7</div><span class="pipeline-label">Comms Dispatch</span></div><span class="pipeline-arrow">&rarr;</span>
       <div class="pipeline-step"><div class="pipeline-num">8</div><span class="pipeline-label">AI Smart Nudge</span></div>
+    </div>
+
+    <!-- DECISION ENGINE -->
+    <div class="de-box">
+      <div class="section-title">The Decision Engine</div>
+      <p>Invisible Check-In is <strong style="color:#fff">Module 1</strong> of a broader AI platform. The Decision Engine monitors data signals &mdash; bookings, documents, flight changes, passenger behaviour &mdash; and decides when and how to act, before the customer even knows there is something to do.</p>
+      <div class="de-modules">
+        <div class="de-mod active">
+          <div class="de-mod-icon">&#x2705;</div>
+          <div class="de-mod-name">Invisible Check-In</div>
+          <div class="de-mod-status">POC READY</div>
+        </div>
+        <div class="de-mod">
+          <div class="de-mod-icon">&#x26A1;</div>
+          <div class="de-mod-name">Disruption Manager</div>
+          <div class="de-mod-status">PLANNED</div>
+        </div>
+        <div class="de-mod">
+          <div class="de-mod-icon">&#x1F6D2;</div>
+          <div class="de-mod-name">Smart Upsell</div>
+          <div class="de-mod-status">PLANNED</div>
+        </div>
+        <div class="de-mod">
+          <div class="de-mod-icon">&#x1F4C4;</div>
+          <div class="de-mod-name">Doc Pre-Validator</div>
+          <div class="de-mod-status">PLANNED</div>
+        </div>
+        <div class="de-mod">
+          <div class="de-mod-icon">&#x1F3AF;</div>
+          <div class="de-mod-name">Loyalty Activator</div>
+          <div class="de-mod-status">PLANNED</div>
+        </div>
+      </div>
     </div>
 
     <!-- PRIVACY -->
