@@ -72,8 +72,6 @@ Return ONLY valid JSON, no markdown, no explanation:
 If you cannot read the document clearly, return:
 { "success": false, "error": "description of what went wrong" }`;
 
-/** Backward-compatible alias */
-export const PASSPORT_SCAN_PROMPT = DOCUMENT_SCAN_PROMPT;
 
 /* =================================================================
  *  2. CHECK-IN CONFIRMATION — Gemini Text

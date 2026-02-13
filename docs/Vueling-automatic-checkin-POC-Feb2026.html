@@ -624,15 +624,15 @@
         <div class="privacy-box" style="margin-top:0;flex:1;">
           <div class="shield">&#x1F4F1;</div>
           <div>
-            <div class="privacy-label" style="color:var(--dark);">Smarter monetisation, not forced funnels</div>
-            <div class="privacy-desc">Decouples upselling from check-in pressure. Bags, seats, and upgrades are offered <strong>earlier in the journey</strong> (D-7, D-3) with better timing and less resentment. Boarding pass &ldquo;just appears&rdquo; &mdash; driving <strong>app adoption and retention</strong>.</div>
+            <div class="privacy-label" style="color:var(--dark);">Upsell decoupled from check-in</div>
+            <div class="privacy-desc">When check-in is invisible, bags, seats and upgrades can be offered <strong>at the right moment</strong> &mdash; not crammed into a pressure flow. Boarding pass &ldquo;just appears&rdquo; &mdash; driving <strong>app adoption and retention</strong>.</div>
           </div>
         </div>
         <div class="privacy-box" style="margin-top:0;flex:1;background:#fff7ed;border-color:#fed7aa;">
           <div class="shield" style="background:#ffedd5;">&#x26A0;</div>
           <div>
             <div class="privacy-label" style="color:#c2410c;">We know the edge cases &mdash; pilot scoped tight</div>
-            <div class="privacy-desc"><strong>Seat cannibalization</strong>: default random seat + &ldquo;upgrade before check-in&rdquo; prompt. <strong>Coercion risk</strong>: transparent rules, editable results. <strong>Doc/visa exceptions</strong>: graceful fallback. <strong>IRROPS</strong>: automation pauses. <strong>Pilot scope</strong>: single passenger, simple domestic trip, no restrictions &mdash; hardest cases later.</div>
+            <div class="privacy-desc"><strong>Seat cannibalization</strong>: default random seat + &ldquo;upgrade before check-in&rdquo; prompt. <strong>Doc/visa exceptions and entry-country conditions</strong>: graceful fallback. <strong>Pilot scope</strong>: single passenger, simple domestic trip, no restrictions &mdash; hardest cases later.</div>
           </div>
         </div>
       </div>
@@ -730,11 +730,19 @@
         <div style="flex:1;">
           <div style="font-size:8px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">&#x25B6; Vision for production</div>
           <ul class="bullet-list" style="margin-top:0;">
-            <li><strong>D-15</strong> &mdash; early doc validation catches expired passports, missing visas proactively</li>
-            <li><strong>D-7 / D-3</strong> &mdash; decoupled upsell window: bags, seats, upgrades before check-in</li>
-            <li><strong>D-2 (48h)</strong> &mdash; pipeline for <strong>eligible passengers</strong>: profile complete, docs clean, no blocking SSR</li>
-            <li><strong>Fallback</strong> &mdash; clear, actionable notification if any eligibility gate fails</li>
+            <li><strong>Early doc validation</strong> &mdash; catch expired passports and entry-country requirements before departure</li>
+            <li><strong>Decoupled upsell</strong> &mdash; bags, seats and upgrades offered at the right moment, not during check-in pressure</li>
+            <li><strong>Automated check-in</strong> &mdash; full pipeline execution for eligible, opted-in passengers</li>
+            <li><strong>Graceful fallback</strong> &mdash; clear, actionable notification if any check fails</li>
           </ul>
+        </div>
+      </div>
+
+      <div class="privacy-box" style="margin-top:8px;">
+        <div class="shield">&#x1F512;</div>
+        <div>
+          <div class="privacy-label">Privacy by design</div>
+          <div class="privacy-desc">Document images are processed by <strong>Gemini 2.0 Flash</strong> and <strong>immediately discarded</strong> &mdash; never stored, never logged. Only structured data is kept.</div>
         </div>
       </div>
 
@@ -830,35 +838,38 @@
           <div class="rm-row">
             <div style="width:6px"></div>
             <div>
-              <div class="rm-phase">Pilot &mdash; 5 domestic routes</div>
-              <div class="rm-detail">Identity capture, smart eligibility gate, boarding pass, AI nudge. Real DCS. IRROPS fallback handling.</div>
+              <div class="rm-phase">v1 &mdash; Data capture &amp; pilot pipeline</div>
+              <div class="rm-detail">Integrate identity data gathering into current Vueling booking flow. Build automated check-in pipeline for 5 domestic routes with simple scenarios.</div>
             </div>
-            <span class="rm-time">Q3 2026</span>
           </div>
           <div class="rm-row">
             <div style="width:6px"></div>
             <div>
-              <div class="rm-phase">Camera scan + domestic scale</div>
-              <div class="rm-detail">Real-time device camera scanning. Decoupled upsell engine (D-7/D-3). All Spanish domestic routes.</div>
+              <div class="rm-phase">v2 &mdash; AI nudge &amp; camera scan</div>
+              <div class="rm-detail">AI nudge engine live on domestic routes. Real-time device camera scanning for document verification. Scale across all domestic.</div>
             </div>
-            <span class="rm-time">Q3+ 2026</span>
           </div>
           <div class="rm-row">
             <div style="width:6px"></div>
             <div>
-              <div class="rm-phase">International &amp; IAG</div>
-              <div class="rm-detail">EU routes. Multi-leg &amp; partner airlines. Decision Engine modules. IATA One ID integration.</div>
+              <div class="rm-phase">v3 &mdash; International &amp; constraint rules</div>
+              <div class="rm-detail">EU and international routes. Entry-country conditions, visa requirements, and multi-constraint rules engine.</div>
             </div>
-            <span class="rm-time">2027</span>
+          </div>
+          <div class="rm-row">
+            <div style="width:6px"></div>
+            <div>
+              <div class="rm-phase">v4 &mdash; IAG scale</div>
+              <div class="rm-detail">Extend to other IAG carriers. Multi-leg itineraries. Decision Engine as a shared platform across the group.</div>
+            </div>
           </div>
 
-          <div style="margin-top:12px;padding:10px 14px;background:linear-gradient(135deg,#1a1a2e,#111827);border-radius:10px;">
-            <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--yellow);font-weight:700;margin-bottom:4px;">Tech stack</div>
+          <div style="margin-top:8px;padding:10px 14px;background:linear-gradient(135deg,#1a1a2e,#111827);border-radius:10px;">
+            <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--yellow);font-weight:700;margin-bottom:4px;">Tech stack (POC)</div>
             <div style="display:flex;gap:5px;flex-wrap:wrap;">
-              <span style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.08);color:#d1d5db;font-weight:600;">Next.js</span>
+              <span style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.08);color:#d1d5db;font-weight:600;">Node.js</span>
               <span style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.08);color:#d1d5db;font-weight:600;">TypeScript</span>
               <span style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.08);color:#d1d5db;font-weight:600;">Gemini 2.0 Flash</span>
-              <span style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.08);color:#d1d5db;font-weight:600;">Tailwind CSS</span>
               <span style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.08);color:#d1d5db;font-weight:600;">REST API</span>
             </div>
           </div>
@@ -902,7 +913,6 @@
       <h2 style="font-size:24px;margin-bottom:3px;">From booking to verified &mdash; four screens, zero friction.</h2>
       <p class="lead" style="margin-bottom:8px;font-size:12px;">
         Right after booking: <strong>opt-in, delivery preference, document upload, and AI verification</strong>. Four real screens from the running POC.
-        <span style="display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:2px 8px;margin-left:4px;vertical-align:middle;"><span style="font-size:10px;">&#x1F512;</span><span style="font-size:10px;font-weight:700;color:#15803d;">Privacy by design</span><span style="font-size:10px;color:#6b7280;">&mdash; images processed &amp; immediately discarded, never stored.</span></span>
       </p>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;flex:1;min-height:0;">
@@ -1147,7 +1157,7 @@
             </div>
           </div>
           <div class="sc-info">
-            <div class="sc-title">3. Live pipeline execution</div>
+            <div class="sc-title">5. Live pipeline execution</div>
             <div class="sc-desc">All 8 stages run in real time. Each stage shows live status, execution time, and data flowing through. AI stages call Gemini 2.0 Flash in real time.</div>
           </div>
         </div>
@@ -1195,7 +1205,7 @@
             </div>
           </div>
           <div class="sc-info">
-            <div class="sc-title">4. Boarding pass &amp; AI nudge</div>
+            <div class="sc-title">6. Boarding pass &amp; AI nudge</div>
             <div class="sc-desc">Full boarding pass with QR code. AI nudge generated by Gemini using configurable prompts with real passenger context (destination, trip, language).</div>
           </div>
         </div>
