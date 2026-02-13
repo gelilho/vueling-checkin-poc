@@ -280,9 +280,10 @@
       min-height: 180px; overflow: hidden;
     }
     .screenshot-card .sc-preview .sc-watermark {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%) rotate(-20deg);
-      font-size: 28px; font-weight: 800; color: rgba(255,209,0,0.08);
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+      transform: rotate(-20deg) scale(1.4);
+      font-size: 20px; font-weight: 800; color: rgba(255,209,0,0.12);
       text-transform: uppercase; letter-spacing: 6px; white-space: nowrap;
       pointer-events: none; z-index: 5;
     }
@@ -896,11 +897,12 @@
       <div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div><div class="gdot"></div>
     </div>
 
-    <div class="slide-body" style="top:62px;bottom:52px;">
+    <div class="slide-body" style="top:56px;bottom:46px;">
       <div class="section-label" style="margin-bottom:4px;">POC in Action &mdash; Passenger Onboarding</div>
       <h2 style="font-size:24px;margin-bottom:3px;">From booking to verified &mdash; four screens, zero friction.</h2>
       <p class="lead" style="margin-bottom:8px;font-size:12px;">
         Right after booking: <strong>opt-in, delivery preference, document upload, and AI verification</strong>. Four real screens from the running POC.
+        <span style="display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:2px 8px;margin-left:4px;vertical-align:middle;"><span style="font-size:10px;">&#x1F512;</span><span style="font-size:10px;font-weight:700;color:#15803d;">Privacy by design</span><span style="font-size:10px;color:#6b7280;">&mdash; images processed &amp; immediately discarded, never stored.</span></span>
       </p>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;flex:1;min-height:0;">
@@ -908,7 +910,7 @@
         <!-- Screenshot 1: Booking confirmed + opt-in -->
         <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;display:flex;flex-direction:column;min-height:0;">
           <div style="flex:1;background:#fff;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;padding:8px 10px;overflow:hidden;">
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);font-size:20px;font-weight:800;color:rgba(0,0,0,0.03);text-transform:uppercase;letter-spacing:4px;white-space:nowrap;pointer-events:none;z-index:1;">Vueling POC</div>
+            <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transform:rotate(-20deg) scale(1.4);pointer-events:none;z-index:3;"><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div></div>
             <div style="width:100%;z-index:2;">
               <div style="text-align:center;margin-bottom:4px;">
                 <div style="width:24px;height:24px;border-radius:50%;background:#dcfce7;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;">
@@ -936,7 +938,7 @@
         <!-- Screenshot 2: Delivery channel selection -->
         <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;display:flex;flex-direction:column;min-height:0;">
           <div style="flex:1;background:#fff;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;padding:8px 10px;overflow:hidden;">
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);font-size:20px;font-weight:800;color:rgba(0,0,0,0.03);text-transform:uppercase;letter-spacing:4px;white-space:nowrap;pointer-events:none;z-index:1;">Vueling POC</div>
+            <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transform:rotate(-20deg) scale(1.4);pointer-events:none;z-index:3;"><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div></div>
             <div style="width:100%;z-index:2;">
               <div style="display:flex;align-items:center;gap:3px;margin-bottom:4px;">
                 <div style="width:14px;height:14px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:var(--dark);">1</div>
@@ -977,7 +979,7 @@
         <!-- Screenshot 3: Document upload / scan -->
         <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;display:flex;flex-direction:column;min-height:0;">
           <div style="flex:1;background:#fff;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;padding:8px 10px;overflow:hidden;">
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);font-size:20px;font-weight:800;color:rgba(0,0,0,0.03);text-transform:uppercase;letter-spacing:4px;white-space:nowrap;pointer-events:none;z-index:1;">Vueling POC</div>
+            <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transform:rotate(-20deg) scale(1.4);pointer-events:none;z-index:3;"><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div></div>
             <div style="width:100%;z-index:2;">
               <div style="display:flex;align-items:center;gap:3px;margin-bottom:4px;">
                 <div style="width:14px;height:14px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:6px;color:var(--dark);font-weight:700;">&#10003;</div>
@@ -1011,7 +1013,7 @@
         <!-- Screenshot 4: AI verification result — extracted data -->
         <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;display:flex;flex-direction:column;min-height:0;">
           <div style="flex:1;background:#fff;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;padding:8px 10px;overflow:hidden;">
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);font-size:20px;font-weight:800;color:rgba(0,0,0,0.03);text-transform:uppercase;letter-spacing:4px;white-space:nowrap;pointer-events:none;z-index:1;">Vueling POC</div>
+            <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transform:rotate(-20deg) scale(1.4);pointer-events:none;z-index:3;"><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div><div style="font-size:14px;font-weight:800;color:rgba(0,0,0,0.10);text-transform:uppercase;letter-spacing:6px;white-space:nowrap;">Vueling POC</div></div>
             <div style="width:100%;z-index:2;">
               <div style="display:flex;align-items:center;gap:5px;padding:5px 8px;border-radius:6px;background:#f0fdf4;border:1px solid #bbf7d0;margin-bottom:6px;">
                 <div style="width:16px;height:16px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:8px;font-weight:700;">&#10003;</div>
@@ -1095,7 +1097,7 @@
         <!-- Screenshot 3: Pipeline Running -->
         <div class="screenshot-card">
           <div class="sc-preview" style="background:linear-gradient(180deg,#0f172a,#1e293b);padding:16px;">
-            <div class="sc-watermark">Vueling POC</div>
+            <div class="sc-watermark"><div>Vueling POC</div><div>Vueling POC</div><div>Vueling POC</div><div>Vueling POC</div><div>Vueling POC</div></div>
             <div style="width:100%;z-index:2;">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
                 <div style="width:10px;height:10px;background:var(--yellow);border-radius:50%;"></div>
@@ -1153,7 +1155,7 @@
         <!-- Screenshot 4: Boarding Pass + AI Nudge -->
         <div class="screenshot-card">
           <div class="sc-preview" style="background:linear-gradient(180deg,#0f172a,#1e293b);padding:16px;">
-            <div class="sc-watermark">Vueling POC</div>
+            <div class="sc-watermark"><div>Vueling POC</div><div>Vueling POC</div><div>Vueling POC</div><div>Vueling POC</div><div>Vueling POC</div></div>
             <div style="width:100%;z-index:2;">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
                 <div style="width:10px;height:10px;background:#10b981;border-radius:50%;"></div>
