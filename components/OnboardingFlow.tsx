@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import DocumentCapture from "./DocumentCapture";
 import {
   saveSubmission,
@@ -66,11 +66,7 @@ export default function OnboardingFlow() {
   const [step, setStep] = useState<OnboardingStep>("booking-confirmed");
   const [selectedDelivery, setSelectedDelivery] = useState<DeliveryMethod[]>(["email", "push"]);
   const [documentData, setDocumentData] = useState<Record<string, string> | null>(null);
-  const [submissionCount, setSubmissionCount] = useState(0);
-
-  useEffect(() => {
-    setSubmissionCount(getSubmissionCount());
-  }, []);
+  const [submissionCount, setSubmissionCount] = useState(() => getSubmissionCount());
 
   function toggleDelivery(method: DeliveryMethod) {
     setSelectedDelivery((prev) =>

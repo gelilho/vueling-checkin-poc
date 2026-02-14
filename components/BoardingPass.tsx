@@ -24,7 +24,7 @@ export default function BoardingPass({
   destinationCity,
   date,
   departure,
-  arrival,
+  // arrival — reserved for future use
   seat,
   gate,
   terminal,

@@ -311,6 +311,7 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
       <div className="flex flex-col items-center py-6">
         {previewUrl && (
           <div className="w-40 h-24 rounded-lg overflow-hidden mb-4 border border-gray-200 opacity-60">
+            {/* eslint-disable-next-line @next/next/no-img-element -- data URL from camera */}
             <img src={previewUrl} alt="Document" className="w-full h-full object-cover" />
           </div>
         )}
@@ -367,6 +368,7 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
         {/* Preview + fields */}
         {previewUrl && (
           <div className="w-full h-20 rounded-lg overflow-hidden mb-3 opacity-40 border border-gray-200">
+            {/* eslint-disable-next-line @next/next/no-img-element -- data URL from camera */}
             <img src={previewUrl} alt="Document" className="w-full h-full object-cover" />
           </div>
         )}
@@ -409,6 +411,7 @@ export default function DocumentCapture({ onVerified, onSkip }: DocumentCaptureP
       <div className="flex flex-col items-center py-4">
         {previewUrl && (
           <div className="w-40 h-24 rounded-lg overflow-hidden mb-4 border-2 border-red-200 animate-fail-shake">
+            {/* eslint-disable-next-line @next/next/no-img-element -- data URL from camera */}
             <img src={previewUrl} alt="Document" className="w-full h-full object-cover" />
           </div>
         )}

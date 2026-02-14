@@ -21,7 +21,7 @@ vi.mock("@/lib/utils/format", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/utils/format")>();
   return {
     ...actual,
-    withMinDelay: async <T>(fn: () => Promise<T>, _minMs: number) => fn(),
+    withMinDelay: async <T>(fn: () => Promise<T>) => fn(),
     delay: async () => {},
   };
 });
@@ -35,7 +35,7 @@ import { executePostCheckinComms } from "@/lib/pipeline/stages/post-checkin-comm
 import { executeAiPushNudge } from "@/lib/pipeline/stages/ai-push-nudge";
 import { validatePassenger } from "@/lib/validator";
 import { pipelineReducer, createInitialState } from "@/lib/pipeline/reducer";
-import type { PipelineContext } from "@/types";
+import type { PipelineContext, DeliveryChannel, PipelineConfig, StageId } from "@/types";
 
 // --- Helpers ---
 
@@ -55,7 +55,7 @@ function createContext(overrides: Partial<PipelineContext> = {}): PipelineContex
     destinationCity: "Rome",
     date: "2026-03-15",
     seat: "14A",
-    channels: ["email", "push"] as any[],
+    channels: ["email", "push"] as DeliveryChannel[],
     isLiveScan: false,
     checkedBag: false,
     tripDays: 5,
@@ -291,13 +291,15 @@ describe("Integration: Underage passenger blocked", () => {
 
 describe("Integration: Reducer tracks pipeline state correctly", () => {
   it("transitions through all states for a successful pipeline", () => {
-    const config = {
-      stageOrder: ["booking-retrieval", "passenger-data", "document-verification"] as any[],
-      stages: {
+    const stageOrder: StageId[] = ["booking-retrieval", "passenger-data", "document-verification"];
+    const config: PipelineConfig = {
+      mode: "orchestration",
+      stageOrder,
+      stageMeta: {
         "booking-retrieval": { id: "booking-retrieval", title: "Booking", icon: "1" },
         "passenger-data": { id: "passenger-data", title: "Passenger", icon: "2" },
         "document-verification": { id: "document-verification", title: "Docs", icon: "3" },
-      } as any,
+      },
     };
 
     let state = createInitialState(config);
@@ -307,12 +309,12 @@ describe("Integration: Reducer tracks pipeline state correctly", () => {
     expect(state.currentStage).toBe("booking-retrieval");
     expect(state.totalStartedAt).toBeTypeOf("number");
 
-    state = pipelineReducer(state, { type: "START_STAGE", stage: "booking-retrieval" as any });
+    state = pipelineReducer(state, { type: "START_STAGE", stage: "booking-retrieval" });
     expect(state.stages["booking-retrieval"].status).toBe("running");
 
     state = pipelineReducer(state, {
       type: "COMPLETE_STAGE",
-      stage: "booking-retrieval" as any,
+      stage: "booking-retrieval",
       data: { PNR: "VY-123" },
       summary: "PNR retrieved",
     });
@@ -320,14 +322,14 @@ describe("Integration: Reducer tracks pipeline state correctly", () => {
 
     state = pipelineReducer(state, {
       type: "SKIP_STAGE",
-      stage: "passenger-data" as any,
+      stage: "passenger-data",
       reason: "Skipped for test",
     });
     expect(state.stages["passenger-data"].status).toBe("skipped");
 
     state = pipelineReducer(state, {
       type: "ERROR_STAGE",
-      stage: "document-verification" as any,
+      stage: "document-verification",
       error: "Passport expired",
     });
     expect(state.stages["document-verification"].status).toBe("error");

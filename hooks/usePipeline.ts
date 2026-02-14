@@ -23,7 +23,6 @@ import type {
   PipelineContext,
   PipelineState,
   StageId,
-  StageState,
   ScanStageResult,
 } from "@/types";
 import type { PipelineAction } from "@/lib/pipeline";

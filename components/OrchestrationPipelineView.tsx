@@ -124,7 +124,7 @@ export default function OrchestrationPipelineView({
     state,
     confirmationMessage,
     issueMessage,
-    bagNudge,
+    // bagNudge — available but rendered inline in stage 7 data
     nudgeMessage,
     nudgeAiGenerated,
     checkinValid,

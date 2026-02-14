@@ -13,38 +13,43 @@ export default function Camera({ onCapture, onError }: CameraProps) {
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const startCamera = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: "environment",
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-        },
-      });
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-        setStreaming(true);
-      }
-    } catch (err) {
-      const msg = "Camera access denied. Please allow camera access and try again.";
-      setError(msg);
-      onError?.(msg);
-    }
-  }, [onError]);
-
   useEffect(() => {
-    startCamera();
+    let cancelled = false;
+    const video = videoRef.current;
+
+    async function initCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "environment",
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+          },
+        });
+
+        if (cancelled || !video) return;
+        video.srcObject = stream;
+        await video.play();
+        if (!cancelled) setStreaming(true);
+      } catch {
+        if (!cancelled) {
+          const msg = "Camera access denied. Please allow camera access and try again.";
+          setError(msg);
+          onError?.(msg);
+        }
+      }
+    }
+
+    initCamera();
 
     return () => {
-      if (videoRef.current?.srcObject) {
-        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+      cancelled = true;
+      if (video?.srcObject) {
+        const tracks = (video.srcObject as MediaStream).getTracks();
         tracks.forEach((track) => track.stop());
       }
     };
-  }, [startCamera]);
+  }, [onError]);
 
   const capture = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return;

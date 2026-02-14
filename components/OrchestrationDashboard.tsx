@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo } from "react";
 import type { Passenger } from "@/types";
 import type { PassengerCheckInStatus } from "@/types";
 import { getLatestSubmission } from "@/lib/utils/storage";
@@ -105,15 +105,11 @@ interface Props {
 }
 
 export default function OrchestrationDashboard({ onReset }: Props) {
-  const [bookingPassenger, setBookingPassenger] = useState<Passenger | null>(null);
-
-  // Load booking data from localStorage on mount
-  useEffect(() => {
+  const [bookingPassenger] = useState<Passenger | null>(() => {
     const latest = getLatestSubmission();
-    if (latest && latest.fullName) {
-      setBookingPassenger(submissionToPassenger(latest));
-    }
-  }, []);
+    if (latest && latest.fullName) return submissionToPassenger(latest);
+    return null;
+  });
 
   const passengers = useMemo(() => {
     const base = [...staticPassengers];

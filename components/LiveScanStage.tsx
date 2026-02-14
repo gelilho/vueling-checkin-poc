@@ -87,6 +87,7 @@ export default function LiveScanStage({
       <div className="flex flex-col items-center py-4">
         {capturedImage && (
           <div className="w-32 h-20 rounded-lg overflow-hidden mb-3 opacity-60">
+            {/* eslint-disable-next-line @next/next/no-img-element -- data URL from camera */}
             <img src={capturedImage} alt="Captured" className="w-full h-full object-cover" />
           </div>
         )}
@@ -101,6 +102,7 @@ export default function LiveScanStage({
     <div>
       {capturedImage && (
         <div className="w-full h-20 rounded-lg overflow-hidden mb-3 opacity-40">
+          {/* eslint-disable-next-line @next/next/no-img-element -- data URL from camera */}
           <img src={capturedImage} alt="Captured" className="w-full h-full object-cover" />
         </div>
       )}

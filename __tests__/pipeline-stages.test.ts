@@ -13,7 +13,7 @@ vi.mock("@/lib/utils/format", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/utils/format")>();
   return {
     ...actual,
-    withMinDelay: async <T>(fn: () => Promise<T>, _minMs: number) => fn(),
+    withMinDelay: async <T>(fn: () => Promise<T>) => fn(),
     delay: async () => {},
   };
 });
@@ -26,7 +26,7 @@ import { executeDeliveryPreferences } from "@/lib/pipeline/stages/delivery-prefe
 import { executeAutoCheckin } from "@/lib/pipeline/stages/auto-checkin";
 import { executePostCheckinComms } from "@/lib/pipeline/stages/post-checkin-comms";
 import { executeAiPushNudge } from "@/lib/pipeline/stages/ai-push-nudge";
-import type { PipelineContext } from "@/types";
+import type { PipelineContext, DeliveryChannel } from "@/types";
 
 // --- Shared test context ---
 
@@ -46,7 +46,7 @@ function createContext(overrides: Partial<PipelineContext> = {}): PipelineContex
     destinationCity: "Rome",
     date: "2026-03-15",
     seat: "14A",
-    channels: ["email", "push"] as any[],
+    channels: ["email", "push"] as DeliveryChannel[],
     isLiveScan: false,
     checkedBag: false,
     tripDays: 5,
@@ -295,7 +295,7 @@ describe("Stage 4: executeBagStatus", () => {
 describe("Stage 5: executeDeliveryPreferences", () => {
   it("lists selected channels", async () => {
     const result = await executeDeliveryPreferences(
-      createContext({ channels: ["email", "push"] as any[] })
+      createContext({ channels: ["email", "push"] as DeliveryChannel[] })
     );
     expect(result.summary).toContain("Email");
     expect(result.summary).toContain("Push");
@@ -304,8 +304,8 @@ describe("Stage 5: executeDeliveryPreferences", () => {
   it("uses deliveryPreferences over channels when both set", async () => {
     const result = await executeDeliveryPreferences(
       createContext({
-        channels: ["email"] as any[],
-        deliveryPreferences: ["sms", "push"] as any[],
+        channels: ["email"] as DeliveryChannel[],
+        deliveryPreferences: ["sms", "push"] as DeliveryChannel[],
       })
     );
     expect(result.summary).toContain("SMS");
@@ -373,7 +373,7 @@ describe("Stage 7: executePostCheckinComms", () => {
   it("delivers boarding pass via selected channels", async () => {
     mockFetchSuccess({ message: "Add a bag for €19.99!" });
     const result = await executePostCheckinComms(
-      createContext({ channels: ["email", "push"] as any[] })
+      createContext({ channels: ["email", "push"] as DeliveryChannel[] })
     );
     expect(result.data["Boarding pass"]).toContain("Generated");
     expect(result.summary).toContain("2 channels");
