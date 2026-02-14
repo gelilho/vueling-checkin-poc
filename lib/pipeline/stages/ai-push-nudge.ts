@@ -52,11 +52,11 @@ export async function executeAiPushNudge(
         });
         const result = await res.json();
         geminiResponse = result.geminiResponse || null;
-        if (result.message && typeof result.message === "string") {
+        if (result.message && typeof result.message === "string" && !result.fallback) {
           nudgeMessage = result.message;
           aiGenerated = true;
         } else {
-          throw new Error("No message in response");
+          throw new Error("No AI message in response");
         }
       } catch {
         // Fallback: use the actual validation issue as the message
@@ -108,11 +108,11 @@ export async function executeAiPushNudge(
       });
       const result = await res.json();
       geminiResponse = result.geminiResponse || null;
-      if (result.message && typeof result.message === "string") {
+      if (result.message && typeof result.message === "string" && !result.fallback) {
         nudgeMessage = result.message;
         aiGenerated = true;
       } else {
-        throw new Error("No message in response");
+        throw new Error("No AI message in response");
       }
     } catch {
       nudgeMessage = hasNoBag

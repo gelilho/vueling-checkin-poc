@@ -52,6 +52,7 @@ async function fetchBagNudge(ctx: PipelineContext): Promise<string | null> {
       }),
     });
     const data = await res.json();
+    if (data.fallback) return null; // Gemini was unavailable
     return data.message as string;
   } catch {
     return null;

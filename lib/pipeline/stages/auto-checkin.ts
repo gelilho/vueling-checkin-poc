@@ -78,6 +78,10 @@ async function fetchConfirmationMessage(
       }),
     });
     const data = await res.json();
+    if (data.fallback) {
+      // Gemini was unavailable — use local fallback instead
+      throw new Error("AI fallback");
+    }
     return {
       message: data.message as string,
       geminiResponse: data.geminiResponse || null,

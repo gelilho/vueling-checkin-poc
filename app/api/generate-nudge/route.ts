@@ -65,8 +65,6 @@ export async function POST(req: NextRequest) {
       geminiResponse: {
         model: "gemini-2.0-flash",
         type,
-        prompt,
-        response: message,
       },
     });
   } catch (error) {
@@ -75,8 +73,9 @@ export async function POST(req: NextRequest) {
       {
         message: "Welcome aboard! You're all set for your flight.",
         geminiResponse: null,
+        fallback: true,
       },
-      { status: 200 }
+      { status: 503 }
     );
   }
 }

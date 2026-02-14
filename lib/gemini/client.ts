@@ -8,10 +8,7 @@
  * Model: gemini-2.0-flash
  * Prompts: defined in ./prompts.ts
  *
- * All Gemini calls are logged to the server console with:
- *  - Request type and prompt preview
- *  - Full raw Gemini response JSON/text
- *  - Latency in ms
+ * Logging: method, model, latency only — no PII, no raw responses.
  */
 
 import { GoogleGenerativeAI, Part } from "@google/generative-ai";
@@ -32,31 +29,18 @@ function cleanJsonResponse(text: string): string {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Gemini Response Logger                                             */
+/*  Gemini Call Logger (safe — no PII, no raw responses)               */
 /* ------------------------------------------------------------------ */
 
 function logGeminiCall(
   method: "Vision" | "Text",
-  promptPreview: string,
-  rawResponse: string,
-  parsed: unknown,
-  durationMs: number
+  promptType: string,
+  durationMs: number,
+  success: boolean
 ) {
-  const divider = "─".repeat(60);
-  console.log(`\n${divider}`);
-  console.log(`🤖 GEMINI ${method.toUpperCase()} CALL`);
-  console.log(`${divider}`);
-  console.log(`  Model:    ${GEMINI_MODEL}`);
-  console.log(`  Method:   ${method}`);
-  console.log(`  Prompt:   ${promptPreview}`);
-  console.log(`  Latency:  ${durationMs}ms`);
-  console.log(`${divider}`);
-  console.log(`  📥 Raw Gemini response:`);
-  console.log(rawResponse);
-  console.log(`${divider}`);
-  console.log(`  📦 Parsed result:`);
-  console.log(JSON.stringify(parsed, null, 2));
-  console.log(`${divider}\n`);
+  console.log(
+    `[Gemini] ${method} | ${GEMINI_MODEL} | ${promptType} | ${durationMs}ms | ${success ? "OK" : "FAIL"}`
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -83,13 +67,7 @@ export async function scanPassport(imageBase64: string): Promise<GeminiPassportD
   const cleaned = cleanJsonResponse(rawText);
   const parsed = JSON.parse(cleaned) as GeminiPassportData;
 
-  logGeminiCall(
-    "Vision",
-    "DOCUMENT_SCAN_PROMPT + [image base64]",
-    rawText,
-    parsed,
-    Date.now() - start
-  );
+  logGeminiCall("Vision", "DOCUMENT_SCAN", Date.now() - start, true);
 
   return parsed;
 }
@@ -106,20 +84,10 @@ export async function generateText(prompt: string): Promise<string> {
   const model = getModel();
   const start = Date.now();
 
-  // Extract a short preview of the prompt (first line, max 80 chars)
-  const firstLine = prompt.split("\n").find((l) => l.trim()) || "";
-  const preview = firstLine.length > 80 ? firstLine.slice(0, 80) + "..." : firstLine;
-
   const result = await model.generateContent(prompt);
   const text = result.response.text();
 
-  logGeminiCall(
-    "Text",
-    preview,
-    text,
-    { message: text },
-    Date.now() - start
-  );
+  logGeminiCall("Text", "GENERATE_NUDGE", Date.now() - start, true);
 
   return text;
 }

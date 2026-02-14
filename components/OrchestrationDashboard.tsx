@@ -10,7 +10,6 @@ import {
   getPipelineExecutionCount,
   getPipelineExecutions,
   downloadPipelineExecutionsCSV,
-  clearPipelineExecutions,
 } from "@/lib/utils/pipeline-log-storage";
 import type { PipelineExecutionLog } from "@/lib/utils/pipeline-log-storage";
 import FlightCard from "./FlightCard";
@@ -108,11 +107,6 @@ interface Props {
 export default function OrchestrationDashboard({ onReset }: Props) {
   const [bookingPassenger, setBookingPassenger] = useState<Passenger | null>(null);
 
-  // Clear stale pipeline data on app start (server restart = fresh state)
-  useEffect(() => {
-    clearPipelineExecutions();
-  }, []);
-
   // Load booking data from localStorage on mount
   useEffect(() => {
     const latest = getLatestSubmission();
@@ -133,25 +127,18 @@ export default function OrchestrationDashboard({ onReset }: Props) {
   const flightGroups = useMemo(() => groupByFlight(passengers), [passengers]);
   const [selectedFlight, setSelectedFlight] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
-  const [statuses, setStatuses] = useState<Record<string, PassengerCheckInStatus>>({});
-  const [executionCount, setExecutionCount] = useState(0);
-  const [executions, setExecutions] = useState<PipelineExecutionLog[]>([]);
 
-  // Load persisted pipeline statuses from localStorage on mount
-  useEffect(() => {
+  // Load persisted pipeline state from localStorage once on mount
+  const [statuses, setStatuses] = useState<Record<string, PassengerCheckInStatus>>(() => {
     const loaded: Record<string, PassengerCheckInStatus> = {};
-    for (const group of flightGroups) {
-      for (const p of group.passengers) {
-        const saved = getPassengerPipelineStatus(p.id);
-        if (saved) loaded[p.id] = saved;
-      }
+    for (const p of allPassengers) {
+      const saved = getPassengerPipelineStatus(p.id);
+      if (saved) loaded[p.id] = saved;
     }
-    if (Object.keys(loaded).length > 0) {
-      setStatuses((prev) => ({ ...loaded, ...prev }));
-    }
-    setExecutionCount(getPipelineExecutionCount());
-    setExecutions(getPipelineExecutions());
-  }, [flightGroups]);
+    return loaded;
+  });
+  const [executionCount, setExecutionCount] = useState(() => getPipelineExecutionCount());
+  const [executions, setExecutions] = useState<PipelineExecutionLog[]>(() => getPipelineExecutions());
 
   const selectedGroup = flightGroups.find(
     (g) => g.flightNumber === selectedFlight

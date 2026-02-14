@@ -104,19 +104,22 @@ export default function BoardingPass({
         </div>
       </div>
 
-      {/* QR Code area */}
+      {/* QR Code area — deterministic pattern based on flight + seat */}
       <div className="px-5 pb-5 flex justify-center">
         <div className="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200">
-          {/* Mock QR code pattern */}
           <div className="grid grid-cols-7 gap-[2px]">
-            {Array.from({ length: 49 }).map((_, i) => (
-              <div
-                key={i}
-                className={`w-2.5 h-2.5 rounded-[1px] ${
-                  Math.random() > 0.4 ? "bg-vueling-dark" : "bg-transparent"
-                }`}
-              />
-            ))}
+            {Array.from({ length: 49 }).map((_, i) => {
+              // Deterministic hash from flight + seat + cell index
+              const seed = (flight.charCodeAt(0) * 31 + seat.charCodeAt(0) * 17 + i * 7) % 10;
+              return (
+                <div
+                  key={i}
+                  className={`w-2.5 h-2.5 rounded-[1px] ${
+                    seed > 3 ? "bg-vueling-dark" : "bg-transparent"
+                  }`}
+                />
+              );
+            })}
           </div>
         </div>
       </div>

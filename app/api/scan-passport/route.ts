@@ -9,7 +9,7 @@ import type { ParsedPassport } from "@/types";
  * Scans identity documents using Gemini Vision.
  * Supports: passports, Spanish DNI, NIE, EU ID cards.
  *
- * Response always includes `geminiResponse` — the raw JSON from Gemini Vision.
+ * Only returns parsed/structured data — raw Gemini payload is never exposed.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -31,7 +31,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: false,
         error: rawData.error || "Could not read the document. Try again with better lighting.",
-        geminiResponse: rawData,
       });
     }
 
@@ -41,14 +40,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: false,
         error: "Could not parse document data. Please try again with a clearer photo.",
-        geminiResponse: rawData,
       });
     }
 
     return NextResponse.json({
       success: true,
       data: parsed,
-      geminiResponse: rawData,
     });
   } catch (error) {
     console.error("Document scan error:", error);
