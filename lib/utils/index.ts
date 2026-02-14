@@ -6,8 +6,6 @@ export { formatDuration, delay, withMinDelay } from "./format";
 export { levenshtein, isFuzzyMatch, fillTemplate, stripDataUrlPrefix } from "./string";
 export {
   saveSubmission,
-  getSubmissions,
-  downloadSubmissionsCSV,
   getSubmissionCount,
   getLatestSubmission,
 } from "./storage";
@@ -18,7 +16,6 @@ export {
   getPipelineExecutions,
   getPassengerPipelineStatus,
   getPipelineExecutionCount,
-  pipelineExecutionsToCSV,
   downloadPipelineExecutionsCSV,
   clearPipelineExecutions,
 } from "./pipeline-log-storage";

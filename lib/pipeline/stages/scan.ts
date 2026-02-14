@@ -1,10 +1,10 @@
 /**
- * Identity scan stage executors.
- * Handles both mocked (demo) and live (camera) passport scanning.
+ * Identity scan stage executor (demo pipeline).
+ * Simulates passport scanning using pre-loaded passenger data.
  */
 
-import type { PipelineContext, StageResult, ScanStageResult } from "@/types";
-import { API_ENDPOINTS, STAGE_DURATIONS } from "@/constants";
+import type { PipelineContext, StageResult } from "@/types";
+import { STAGE_DURATIONS } from "@/constants";
 import { withMinDelay } from "@/lib/utils";
 
 /**
@@ -32,48 +32,3 @@ export async function executeScanMocked(
   }, STAGE_DURATIONS.scan);
 }
 
-/**
- * Perform a real passport scan using Gemini vision via the API.
- * Used for the "Scan your own passport" scenario.
- */
-export async function executeScanLive(
-  imageBase64: string
-): Promise<ScanStageResult> {
-  const res = await fetch(API_ENDPOINTS.SCAN_PASSPORT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ image: imageBase64 }),
-  });
-  const result = await res.json();
-
-  if (!result.success) {
-    throw new Error(result.error || "Could not read passport");
-  }
-
-  const d = result.data;
-  const data: Record<string, string> = {
-    "Full name": d.fullName,
-    "Passport number": d.passportNumber,
-    Nationality: d.nationality,
-    "Date of birth": d.dateOfBirth,
-    Gender: d.gender,
-    "Expiry date": d.expiryDate,
-    "Issuing country": d.issuingCountry,
-  };
-
-  return {
-    data,
-    summary: `${d.fullName} — ${d.nationality} passport`,
-    parsedData: {
-      fullName: d.fullName,
-      surname: d.surname,
-      givenNames: d.givenNames,
-      passportNumber: d.passportNumber,
-      nationality: d.nationality,
-      dateOfBirth: d.dateOfBirth,
-      gender: d.gender,
-      expiryDate: d.expiryDate,
-      issuingCountry: d.issuingCountry,
-    },
-  };
-}
