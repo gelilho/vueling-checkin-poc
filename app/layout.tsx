@@ -1,12 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import NavToggle from "@/components/NavToggle";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Vueling Invisible Check-In",
@@ -27,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} antialiased bg-white min-h-screen`}>
+      <body className={`${GeistSans.variable} antialiased bg-white min-h-screen`}>
         <div className="mx-auto max-w-xl min-h-screen flex flex-col">
           {/* Header */}
           <header className="flex items-center justify-between px-5 py-4 border-b border-gray-100">

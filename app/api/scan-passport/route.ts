@@ -28,19 +28,25 @@ export async function POST(req: NextRequest) {
     const rawData = await scanPassport(base64Data);
 
     if (!rawData.success) {
-      return NextResponse.json({
-        success: false,
-        error: rawData.error || "Could not read the document. Try again with better lighting.",
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: rawData.error || "Could not read the document. Try again with better lighting.",
+        },
+        { status: 422 }
+      );
     }
 
     const parsed: ParsedPassport | null = parseAndValidateMRZ(rawData);
 
     if (!parsed) {
-      return NextResponse.json({
-        success: false,
-        error: "Could not parse document data. Please try again with a clearer photo.",
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Could not parse document data. Please try again with a clearer photo.",
+        },
+        { status: 422 }
+      );
     }
 
     return NextResponse.json({
